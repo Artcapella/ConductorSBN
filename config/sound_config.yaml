@@ -1,0 +1,182 @@
+sound_triggers:
+  "sword clash":
+    file: "sword-clash-241729.mp3"
+    volume: 0.6
+  "blades clash":
+    file: "sword-clash-241729.mp3"
+    volume: 0.6
+  "attack hits":
+    file: "sword-clash-241729.mp3"
+    volume: 0.6
+  "axe":
+    file: "axeHit.mp3"
+    volume: 0.6
+  "swords clash":
+    file: "sword-clash-241729.mp3"
+    volume: 0.8
+  "cast":
+    file: "magic-spell-333896.mp3"
+    volume: 0.5
+  "spells cast":
+    file: "magic-spell-333896.mp3"
+    volume: 0.8
+  "cast spells":
+    file: "magic-spell-333896.mp3"
+    volume: 0.8
+  "cast a spell":
+    file: "magic-spell-333896.mp3"
+    volume: 0.6
+  "spells are cast":
+    file: "magic-spell-333896.mp3"
+    volume: 0.9
+  "mind flares roars":
+    file: "the-mind-flayer's-roar-made-with-Voicemod.mp3"
+    volume: 0.6
+  "mind flares roar":
+    file: "the-mind-flayer's-roar-made-with-Voicemod.mp3"
+    volume: 0.5
+  "mind flayer roars":
+    file: "the-mind-flayer's-roar-made-with-Voicemod.mp3"
+    volume: 0.6
+  "mind flayers roar":
+    file: "the-mind-flayer's-roar-made-with-Voicemod.mp3"
+    volume: 0.5
+  "terrifying roar":
+    file: "the-mind-flayer's-roar-made-with-Voicemod.mp3"
+    volume: 0.9
+  "footsteps":
+    file: "concrete-footsteps-1-6265.mp3"
+    volume: 0.9
+  "breaks":
+    file: "Break_Structure.mp3"
+    volume: 0.5
+  "shatters":
+    file: "Break_Structure.mp3"
+    volume: 0.6
+  "destroys":
+    file: "Break_Structure.mp3"
+    volume: 0.8
+  "destroyed":
+    file: "Break_Structure.mp3"
+    volume: 0.8
+  "bell":
+    file: "magic-church-bell-293423.mp3"
+    volume: 0.5
+  "ring":
+    file: "magic-church-bell-293423.mp3"
+    volume: 0.5
+  "fire":
+    file: "fire-sound-effects-224089.mp3"
+    volume: 0.5
+  "blaze":
+    file: "fire-sound-effects-224089.mp3"
+    volume: 0.9
+  "thunder":
+    file: "thunder-strike-wav-321628.mp3"
+    volume: 0.5
+  "lightning":
+    file: "thunder-strike-wav-321628.mp3"
+    volume: 0.5
+  "heal":
+    file: "aud-7-chakra-5-bowl-39233.mp3"
+    volume: 0.5
+  "healing":
+    file: "shimmer.mp3"
+    volume: 0.5
+  "channel divinity":
+    file: "shimmer.mp3"
+    volume: 0.7
+  "light":
+    file: "light.mp3"
+    volume: 0.5
+  "divination":
+    file: "light.mp3"
+    volume: 0.5
+  "waves":
+    file: "waves.mp3"
+    volume: 0.5
+  "sail":
+    file: "sails.mp3"
+    volume: 0.5
+  "throw":
+    file: "shot-light-energy.wav"
+    volume: 0.5
+  "teleport":
+    file: "teleport.wav"
+    volume: 0.3
+  "descends":
+    file: "airshipDecend.mp3"
+    volume: 0.9
+  "descend":
+    file: "airshipDecend.mp3"
+    volume: 0.9
+  "nautiloid":
+    file: "airshipDecend.mp3"
+    volume: 0.5
+  "metalloid":
+    file: "airshipDecend.mp3"
+    volume: 0.5
+  "fleet approach":
+    file: "airshipDecend.mp3"
+    volume: 0.9
+  "army approach":
+    file: "airshipDecend.mp3"
+    volume: 0.9
+  "psionic":
+    file: "psionic.mp3"
+    volume: 0.9
+  "mind blast":
+    file: "psionic.mp3"
+    volume: 0.9
+  "mind control":
+    file: "psionic.mp3"
+    volume: 0.9
+  "dominate person":
+    file: "psionic.mp3"
+    volume: 0.9
+  "launch":
+    file: "launch.mp3"
+    volume: 0.9
+  "otherworld":
+    file: "otherworld.mp3"
+    volume: 0.9
+  "beyond energy":
+    file: "beyondEnergy.mp3"
+    volume: 0.9
+  "energy of the beyond":
+    file: "beyondEnergy.mp3"
+    volume: 0.9
+  "spell hit":
+    file: "spellHit.mp3"
+    volume: 0.9
+  "strike":
+    file: "spellHit.mp3"
+    volume: 0.6
+  "energy":
+    file: "energyOminous.mp3"
+    volume: 0.6
+  "ominous":
+    file: "energyOminous.mp3"
+    volume: 0.6
+  "running":
+    file: "running.mp3"
+    volume: 0.6
+  "peaceful":
+    file: "peaceful.mp3"
+    volume: 0.8
+  "pleasant":
+    file: "pleasant.mp3"
+    volume: 0.1
+  "calming":
+    file: "calming.mp3"
+    volume: 0.1
+  "birds":
+    file: "birds.mp3"
+    volume: 0.4
+  "wind":
+    file: "wind.mp3"
+    volume: 0.7
+
+volume_shift:
+  step: 0.1  # Volume change per command
+  interval: 0.1
