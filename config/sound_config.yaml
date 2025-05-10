@@ -88,7 +88,7 @@ sound_triggers:
     volume: 0.7
   "light":
     file: "light.mp3"
-    volume: 0.5
+    volume: 0.1
   "divination":
     file: "light.mp3"
     volume: 0.5
@@ -163,7 +163,7 @@ sound_triggers:
     volume: 0.6
   "peaceful":
     file: "peaceful.mp3"
-    volume: 0.8
+    volume: 0.9
   "pleasant":
     file: "pleasant.mp3"
     volume: 0.1
