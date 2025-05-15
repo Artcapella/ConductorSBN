@@ -5,12 +5,12 @@ sound_triggers:
   "blades clash":
     file: "sword-clash-241729.mp3"
     volume: 0.6
-  "attack hits":
+  "attack hit":
     file: "sword-clash-241729.mp3"
     volume: 0.6
   "axe":
     file: "axeHit.mp3"
-    volume: 0.6
+    volume: 0.5
   "swords clash":
     file: "sword-clash-241729.mp3"
     volume: 0.8
@@ -25,7 +25,7 @@ sound_triggers:
     volume: 0.8
   "cast a spell":
     file: "magic-spell-333896.mp3"
-    volume: 0.6
+    volume: 0.5
   "spells are cast":
     file: "magic-spell-333896.mp3"
     volume: 0.9
@@ -47,9 +47,9 @@ sound_triggers:
   "footsteps":
     file: "concrete-footsteps-1-6265.mp3"
     volume: 0.9
-  "breaks":
+  "break":
     file: "Break_Structure.mp3"
-    volume: 0.5
+    volume: 0.4
   "shatters":
     file: "Break_Structure.mp3"
     volume: 0.6
@@ -59,9 +59,6 @@ sound_triggers:
   "destroyed":
     file: "Break_Structure.mp3"
     volume: 0.8
-  "bell":
-    file: "magic-church-bell-293423.mp3"
-    volume: 0.5
   "ring":
     file: "magic-church-bell-293423.mp3"
     volume: 0.5
@@ -110,9 +107,6 @@ sound_triggers:
   "descend":
     file: "airshipDecend.mp3"
     volume: 0.9
-  "nautiloid":
-    file: "airshipDecend.mp3"
-    volume: 0.5
   "metalloid":
     file: "airshipDecend.mp3"
     volume: 0.5
@@ -176,6 +170,52 @@ sound_triggers:
   "wind":
     file: "wind.mp3"
     volume: 0.7
+  "bludgeon":
+    file: "slam.mp3"
+    volume: 0.4
+  "slam":
+    file: "slam.mp3"
+    volume: 0.8
+  "slash":
+    file: "slash.mp3"
+    volume: 1.0
+  "pierce":
+    file: "pierce.mp3"
+    volume: 0.9
+  "cold damage":
+    file: "ice.mp3"
+    volume: 0.9
+  "acid":
+    file: "acid.mp3"
+    volume: 0.9
+  "poison":
+    file: "poison.mp3"
+    volume: 0.9
+  "crumble":
+    file: "crumble.mp3"
+    volume: 0.5
+  "disintegrate":
+    file: "crumble.mp3"
+    volume: 0.9
+  "damage":
+    file: "damage.mp3"
+    volume: 0.4
+  "danger":
+    file: "dangerous.mp3"
+    volume: 0.7
+  "trauma":
+    file: "dangerous.mp3"
+    volume: 0.7
+  "horror":
+    file: "dangerous.mp3"
+    volume: 0.7
+  "destruction":
+    file: "dangerous.mp3"
+    volume: 0.7
+  "impending":
+    file: "dangerous.mp3"
+    volume: 0.7
+
 
 volume_shift:
   step: 0.1  # Volume change per command
