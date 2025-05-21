@@ -6,6 +6,9 @@ import json
 import yaml
 import os
 from threading import Thread
+import ctypes
+import numpy as np
+import array
 
 class SoundManager:
     def __init__(self, config_path):
@@ -43,17 +46,19 @@ class AudioReactApp:
         self.model = vosk.Model(model_path)
         self.sample_rate = 16000
         self.device_info = sd.query_devices(None, 'input')
+        self._played_triggers = set()  # Track played triggers for current phrase
 
-    def process_phrase(self, text):
+    def process_phrase(self, text, is_partial=False):
         text = text.lower()
-        if "louder" in text:
+        if "louder" in text and (not is_partial):
             self.sm.adjust_volume(0.1)
-        elif "softer" in text:
+        elif "softer" in text and (not is_partial):
             self.sm.adjust_volume(-0.1)
         else:
             for trigger in self.sm.sounds:
-                if trigger in text:
+                if trigger in text and trigger not in self._played_triggers:
                     self.sm.play(trigger)
+                    self._played_triggers.add(trigger)
 
     def run(self):
         with sd.RawInputStream(samplerate=self.sample_rate, blocksize=4000,
@@ -64,18 +69,19 @@ class AudioReactApp:
             
             while True:
                 data, _ = stream.read(4000)
-                data_bytes = bytes(data)
+                data_bytes = data[:]  # Slicing buffer returns bytes
                 if len(data_bytes) == 0: break
                 
                 if rec.AcceptWaveform(data_bytes):
                     result = json.loads(rec.Result())
-                    self.process_phrase(result.get('text', ''))
+                    self.process_phrase(result.get('text', ''), is_partial=False)
+                    self._played_triggers.clear()  # Reset after final result
                 
                 # Process partial results
                 partial = json.loads(rec.PartialResult())
                 partial_text = partial.get('partial', '')
-                if partial_text:
-                    self.process_phrase(partial_text)
+                if partial_text and len(partial_text) > 0:
+                    self.process_phrase(partial_text, is_partial=True)
 
 if __name__ == "__main__":
     app = AudioReactApp("config/sound_config.yaml")

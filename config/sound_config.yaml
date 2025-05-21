@@ -59,9 +59,6 @@ sound_triggers:
   "destroyed":
     file: "Break_Structure.mp3"
     volume: 0.8
-  "ring":
-    file: "magic-church-bell-293423.mp3"
-    volume: 0.5
   "fire":
     file: "fire-sound-effects-224089.mp3"
     volume: 0.5
@@ -215,6 +212,37 @@ sound_triggers:
   "impending":
     file: "dangerous.mp3"
     volume: 0.7
+  "tsumani":
+    file: "tsunami.mp3"
+    volume: 0.9
+  "tidal wave":
+    file: "waterEffect1.mp3"
+    volume: 0.9
+  "stab":
+    file: "stab.mp3"
+    volume: 0.9
+  "block":
+    file: "block.wav"
+    volume: 0.9
+  "cast shield":
+    file: "block.wav"
+    volume: 0.9
+  "explosion":
+    file: "explode.wav"
+    volume: 0.9
+  "crashes":
+    file: "explode.wav"
+    volume: 0.5
+  "screaming":
+    file: "screaming.wav"
+    volume: 0.7
+  "drum":
+    file: "drums.wav"
+    volume: 0.5
+  "obliterate":
+    file: "obliterate.wav"
+    volume: 0.9
+  
 
 
 volume_shift:
