@@ -80,18 +80,15 @@ sound_triggers:
   "channel divinity":
     file: "shimmer.mp3"
     volume: 0.7
-  "light":
-    file: "light.mp3"
-    volume: 0.1
   "divination":
     file: "light.mp3"
     volume: 0.5
   "waves":
     file: "waves.mp3"
-    volume: 0.5
+    volume: 0.6
   "sail":
     file: "sails.mp3"
-    volume: 0.5
+    volume: 0.8
   "throw":
     file: "shot-light-energy.wav"
     volume: 0.5
@@ -132,6 +129,9 @@ sound_triggers:
     file: "otherworld.mp3"
     volume: 0.9
   "beyond energy":
+    file: "beyondEnergy.mp3"
+    volume: 0.9
+  "of the beyond":
     file: "beyondEnergy.mp3"
     volume: 0.9
   "energy of the beyond":
@@ -215,9 +215,6 @@ sound_triggers:
   "tsumani":
     file: "tsunami.mp3"
     volume: 0.9
-  "tidal wave":
-    file: "waterEffect1.mp3"
-    volume: 0.9
   "stab":
     file: "stab.mp3"
     volume: 0.9
@@ -241,6 +238,60 @@ sound_triggers:
     volume: 0.5
   "obliterate":
     file: "obliterate.wav"
+    volume: 0.9
+  "powerful spell":
+    file: "powerful-spell.mp3"
+    volume: 0.9
+  "fireball":
+    file: "FIREBALL.mp3"
+    volume: 0.9
+  "fire ball":
+    file: "FIREBALL.mp3"
+    volume: 0.9
+  "starry":
+    file: "starry-form.mp3"
+    volume: 0.9
+  "starry form":
+    file: "starry-form.mp3"
+    volume: 0.9
+  "star":
+    file: "starry-form.mp3"
+    volume: 0.9
+  "portal":
+    file: "portal.mp3"
+    volume: 0.6
+  "counterspell":
+    file: "counterspell.mp3"
+    volume: 0.9
+  "counter spell":
+    file: "counterspell.mp3"
+    volume: 0.9
+  "counter":
+    file: "counterspell.mp3"
+    volume: 0.9
+  "smoke":
+    file: "smoke.mp3"
+    volume: 0.9
+  "cloud":
+    file: "smoke.mp3"
+    volume: 0.8
+  "fog":
+    file: "smoke.mp3"
+    volume: 0.6
+  "forest":
+    file: "forest.mp3"
+    volume: 0.6
+  "natural one":
+    file: "nat1.mp3"
+    volume: 0.9
+  "natural 1":
+    file: "nat1.mp3"
+    volume: 0.9
+  "nat 1":
+    file: "nat1.mp3"
+    volume: 0.9
+  "nat one":
+    file: "nat1.mp3"
     volume: 0.9
   
 
