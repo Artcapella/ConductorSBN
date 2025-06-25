@@ -52,16 +52,16 @@ sound_triggers:
     volume: 0.4
   "shatters":
     file: "Break_Structure.mp3"
-    volume: 0.6
+    volume: 0.5
   "destroys":
     file: "Break_Structure.mp3"
     volume: 0.8
   "destroyed":
     file: "Break_Structure.mp3"
-    volume: 0.8
+    volume: 0.7
   "fire":
     file: "fire-sound-effects-224089.mp3"
-    volume: 0.5
+    volume: 0.9
   "blaze":
     file: "fire-sound-effects-224089.mp3"
     volume: 0.9
@@ -294,13 +294,28 @@ sound_triggers:
     file: "nat1.mp3"
     volume: 0.9
   "entangle":
-    file: "entangle.mp3"
+    file: "plantGrow.mp3"
     volume: 0.9
   "plants grow":
-    file: "entangle.mp3"
+    file: "plantGrow.mp3"
     volume: 0.9
   "plant grow":
-    file: "entangle.mp3"
+    file: "plantGrow.mp3"
+    volume: 0.9
+  "plant growth":
+    file: "plantGrow.mp3"
+    volume: 0.9
+  "consumes":
+    file: "consume.mp3"
+    volume: 0.9
+  "eats":
+    file: "consume.mp3"
+    volume: 0.9
+  "consume corpse":
+    file: "consume.mp3"
+    volume: 0.9
+  "giant footsteps":
+    file: "giantFootsteps.mp3"
     volume: 0.9
   
   
