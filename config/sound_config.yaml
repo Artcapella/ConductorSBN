@@ -293,6 +293,16 @@ sound_triggers:
   "nat one":
     file: "nat1.mp3"
     volume: 0.9
+  "entangle":
+    file: "entangle.mp3"
+    volume: 0.9
+  "plants grow":
+    file: "entangle.mp3"
+    volume: 0.9
+  "plant grow":
+    file: "entangle.mp3"
+    volume: 0.9
+  
   
 
 
