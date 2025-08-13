@@ -323,6 +323,15 @@ sound_triggers:
   "rifle":
     file: "gunshot.mp3"
     volume: 0.5
+  "choir":
+    file: "choir20.wav"
+    volume: 0.9
+  "god":
+    file: "choir7.wav"
+    volume: 0.9
+  "divine":
+    file: "choir4.wav"
+    volume: 0.9
   
   
 
