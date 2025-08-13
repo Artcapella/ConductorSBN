@@ -166,7 +166,7 @@ sound_triggers:
     volume: 0.4
   "wind":
     file: "wind.mp3"
-    volume: 0.7
+    volume: 0.8
   "bludgeon":
     file: "slam.mp3"
     volume: 0.4
@@ -187,7 +187,7 @@ sound_triggers:
     volume: 0.9
   "poison":
     file: "poison.mp3"
-    volume: 0.9
+    volume: 0.7
   "crumble":
     file: "crumble.mp3"
     volume: 0.5
@@ -196,22 +196,22 @@ sound_triggers:
     volume: 0.9
   "damage":
     file: "damage.mp3"
-    volume: 0.3
+    volume: 0.2
   "danger":
     file: "dangerous.mp3"
     volume: 0.7
   "trauma":
     file: "dangerous.mp3"
-    volume: 0.7
+    volume: 0.9
   "horror":
     file: "dangerous.mp3"
     volume: 0.7
   "destruction":
     file: "dangerous.mp3"
-    volume: 0.7
+    volume: 0.9
   "impending":
     file: "dangerous.mp3"
-    volume: 0.7
+    volume: 0.9
   "tsumani":
     file: "tsunami.mp3"
     volume: 0.9
