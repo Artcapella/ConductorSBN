@@ -47,9 +47,6 @@ sound_triggers:
   "footsteps":
     file: "concrete-footsteps-1-6265.mp3"
     volume: 0.9
-  "break":
-    file: "Break_Structure.mp3"
-    volume: 0.4
   "shatters":
     file: "Break_Structure.mp3"
     volume: 0.5
@@ -122,21 +119,18 @@ sound_triggers:
   "dominate person":
     file: "psionic.mp3"
     volume: 0.9
-  "launch":
-    file: "launch.mp3"
-    volume: 0.9
   "otherworld":
     file: "otherworld.mp3"
     volume: 0.9
   "beyond energy":
     file: "beyondEnergy.mp3"
-    volume: 0.9
+    volume: 0.5
   "of the beyond":
     file: "beyondEnergy.mp3"
-    volume: 0.9
+    volume: 0.6
   "energy of the beyond":
     file: "beyondEnergy.mp3"
-    volume: 0.9
+    volume: 0.7
   "spell hit":
     file: "spellHit.mp3"
     volume: 0.9
@@ -254,12 +248,9 @@ sound_triggers:
   "starry form":
     file: "starry-form.mp3"
     volume: 0.9
-  "star":
-    file: "starry-form.mp3"
-    volume: 0.9
   "portal":
     file: "portal.mp3"
-    volume: 0.6
+    volume: 0.3
   "counterspell":
     file: "counterspell.mp3"
     volume: 0.9
@@ -308,15 +299,24 @@ sound_triggers:
   "consumes":
     file: "consume.mp3"
     volume: 0.9
-  "eats":
-    file: "consume.mp3"
-    volume: 0.9
   "consume corpse":
     file: "consume.mp3"
     volume: 0.9
   "giant footsteps":
     file: "giantFootsteps.mp3"
     volume: 0.9
+  "gun shot":
+    file: "gunshot.mp3"
+    volume: 0.9
+  "gunshot":
+    file: "gunshot.mp3"
+    volume: 0.9
+  "gun fires":
+    file: "gunshot.mp3"
+    volume: 0.9
+  "rifle":
+    file: "gunshot.mp3"
+    volume: 0.5
   
   
 
