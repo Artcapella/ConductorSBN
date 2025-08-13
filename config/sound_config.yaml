@@ -11,6 +11,12 @@ sound_triggers:
   "axe":
     file: "axeHit.mp3"
     volume: 0.5
+  "a hit":
+    file: "axeHit.mp3"
+    volume: 0.5
+  "that hits":
+    file: "axeHit.mp3"
+    volume: 0.5
   "swords clash":
     file: "sword-clash-241729.mp3"
     volume: 0.8
@@ -134,7 +140,7 @@ sound_triggers:
   "spell hit":
     file: "spellHit.mp3"
     volume: 0.9
-  "strike":
+  "strikes":
     file: "spellHit.mp3"
     volume: 0.6
   "energy":
@@ -151,7 +157,7 @@ sound_triggers:
     volume: 0.9
   "pleasant":
     file: "pleasant.mp3"
-    volume: 0.1
+    volume: 0.3
   "calming":
     file: "calming.mp3"
     volume: 0.1
@@ -166,7 +172,7 @@ sound_triggers:
     volume: 0.4
   "slam":
     file: "slam.mp3"
-    volume: 0.8
+    volume: 0.5
   "slash":
     file: "slash.mp3"
     volume: 1.0
@@ -190,7 +196,7 @@ sound_triggers:
     volume: 0.9
   "damage":
     file: "damage.mp3"
-    volume: 0.4
+    volume: 0.3
   "danger":
     file: "dangerous.mp3"
     volume: 0.7
@@ -215,9 +221,9 @@ sound_triggers:
   "block":
     file: "block.wav"
     volume: 0.9
-  "cast shield":
+  "shield":
     file: "block.wav"
-    volume: 0.9
+    volume: 0.6
   "explosion":
     file: "explode.wav"
     volume: 0.9
@@ -253,13 +259,13 @@ sound_triggers:
     volume: 0.3
   "counterspell":
     file: "counterspell.mp3"
-    volume: 0.9
+    volume: 1.0
   "counter spell":
     file: "counterspell.mp3"
-    volume: 0.9
+    volume: 1.0
   "counter":
     file: "counterspell.mp3"
-    volume: 0.9
+    volume: 1.0
   "smoke":
     file: "smoke.mp3"
     volume: 0.9
