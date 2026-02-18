@@ -1,0 +1,5 @@
+bindings:
+  a:
+    name: attack hit
+    file: sword-clash-241729.mp3
+    volume: 0.6

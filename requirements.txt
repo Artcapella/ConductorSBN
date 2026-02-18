@@ -5,6 +5,7 @@ sounddevice
 PyYAML
 numpy
 SpeechRecognition
+customtkinter
 
 # Optional (recommended on Windows for microphone support)
 # pyaudio
