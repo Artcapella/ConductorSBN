@@ -39,7 +39,7 @@ class AudioReactApp:
         self.sm = SoundManager(config_path)
         
         # Vosk setup
-        model_path = "C:/Users/clair/OneDrive/Documents/GitHub/ConductorSBN/vosk-model-small-en-us-0.15/vosk-model-small-en-us-0.15"
+        model_path = "vosk-model-small-en-us-0.15/vosk-model-small-en-us-0.15"
         if not os.path.exists(model_path):
             raise FileNotFoundError("Vosk model not found")
         
