@@ -3,3 +3,39 @@ bindings:
     name: attack hit
     file: sword-clash-241729.mp3
     volume: 0.6
+  c:
+    name: counterspell
+    file: counterspell.mp3
+    volume: 1.0
+  b:
+    name: block
+    file: block.wav
+    volume: 0.9
+  p:
+    name: portal
+    file: portal.mp3
+    volume: 0.3
+  e:
+    name: energy
+    file: energyOminous.mp3
+    volume: 0.6
+  t:
+    name: teleport
+    file: teleport.wav
+    volume: 0.3
+  q:
+    name: obliterate
+    file: obliterate.wav
+    volume: 0.9
+  g:
+    name: gunshot
+    file: gunshot.mp3
+    volume: 0.9
+  u:
+    name: powerful spell
+    file: powerful-spell.mp3
+    volume: 0.9
+  o:
+    name: tsumani
+    file: tsunami.mp3
+    volume: 0.9
