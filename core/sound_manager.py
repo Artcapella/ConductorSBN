@@ -27,3 +27,7 @@ class SoundManager:
             sound, base_vol = self.sounds[trigger]
             sound.set_volume(base_vol * self.global_volume)
             Thread(target=sound.play).start()
+
+    def stop_all(self):
+        """Stop all currently playing sound effect channels."""
+        mixer.stop()

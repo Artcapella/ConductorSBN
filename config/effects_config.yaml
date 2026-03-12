@@ -1,0 +1,14 @@
+# ConductorSBN — Voice Effects Configuration
+# Maps F-keys to effect presets.
+
+hotkeys:
+  F1: NONE
+  F2: TUNNEL
+  F3: CATHEDRAL
+  F4: CHOIR
+  F5: DEMON
+  F6: WHISPER
+  F7: UNDERWATER
+
+default_preset: NONE
+default_dry_wet: 0.7
