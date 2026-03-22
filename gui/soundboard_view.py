@@ -58,6 +58,7 @@ class SoundboardView(ctk.CTkFrame):
         self._listen_thread: Thread | None = None
         self._cards: dict[str, ctk.CTkFrame] = {}
         self._bindings: dict[str, dict] = {}
+        self._sound_cache: dict[str, mixer.Sound] = {}
         self._load_configs()
         self._build_ui()
 
@@ -170,13 +171,15 @@ class SoundboardView(ctk.CTkFrame):
         return card
 
     # ── Sound playback ────────────────────────────────────────────────
-    @staticmethod
-    def _play(bind: dict):
+    def _play(self, bind: dict):
         fp = os.path.join("sounds", bind["file"])
-        if os.path.exists(fp):
-            snd = mixer.Sound(fp)
-            snd.set_volume(bind.get("volume", 0.5))
-            Thread(target=snd.play, daemon=True).start()
+        if not os.path.exists(fp):
+            return
+        if fp not in self._sound_cache:
+            self._sound_cache[fp] = mixer.Sound(fp)
+        snd = self._sound_cache[fp]
+        snd.set_volume(bind.get("volume", 0.5))
+        snd.play()
 
     def _remove(self, key: str):
         self._bindings.pop(key, None)
@@ -203,15 +206,10 @@ class SoundboardView(ctk.CTkFrame):
         self._load_configs()
         self._refresh_grid()
         self.active = True
-        self.winfo_toplevel().bind("<KeyPress>", self._on_key, add="+")
 
     def deactivate(self):
         """Called when leaving this view."""
         self.active = False
-        try:
-            self.winfo_toplevel().unbind("<KeyPress>")
-        except Exception:
-            pass
         if self.listening:
             self._stop_listen()
 
@@ -364,9 +362,11 @@ class SoundboardView(ctk.CTkFrame):
             if trigger in text_l and trigger not in played:
                 fp = os.path.join("sounds", params["file"])
                 if os.path.exists(fp):
-                    snd = mixer.Sound(fp)
+                    if fp not in self._sound_cache:
+                        self._sound_cache[fp] = mixer.Sound(fp)
+                    snd = self._sound_cache[fp]
                     snd.set_volume(params["volume"])
-                    Thread(target=snd.play, daemon=True).start()
+                    snd.play()
                     played.add(trigger)
 
                     # Highlight matching soundboard cards (green flash)

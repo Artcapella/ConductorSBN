@@ -1,0 +1,49 @@
+{
+    "leitmotifs": {
+        "aria_theme": {
+            "name": "Aria's Theme",
+            "description": "Elven ranger — ethereal and flowing",
+            "instrument": 73,
+            "channel": 5,
+            "notes": [
+                {"pitch": 74, "velocity": 80, "start_beat": 0.0, "duration_beats": 1.0},
+                {"pitch": 76, "velocity": 85, "start_beat": 1.0, "duration_beats": 0.5},
+                {"pitch": 78, "velocity": 90, "start_beat": 1.5, "duration_beats": 1.5},
+                {"pitch": 76, "velocity": 75, "start_beat": 3.0, "duration_beats": 0.5},
+                {"pitch": 74, "velocity": 70, "start_beat": 3.5, "duration_beats": 0.5}
+            ],
+            "total_beats": 4,
+            "loop": false,
+            "transpose_to_scene_key": true
+        },
+        "grimjaw_theme": {
+            "name": "Grimjaw's Theme",
+            "description": "Orc warlord — heavy and ominous",
+            "instrument": 58,
+            "channel": 6,
+            "notes": [
+                {"pitch": 36, "velocity": 110, "start_beat": 0.0, "duration_beats": 2.0},
+                {"pitch": 38, "velocity": 100, "start_beat": 2.0, "duration_beats": 1.0},
+                {"pitch": 36, "velocity": 105, "start_beat": 3.0, "duration_beats": 1.0}
+            ],
+            "total_beats": 4,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "mystery_motif": {
+            "name": "Mystery Motif",
+            "description": "Generic suspense sting",
+            "instrument": 48,
+            "channel": 7,
+            "notes": [
+                {"pitch": 60, "velocity": 60, "start_beat": 0.0, "duration_beats": 0.25},
+                {"pitch": 63, "velocity": 65, "start_beat": 0.5, "duration_beats": 0.25},
+                {"pitch": 66, "velocity": 70, "start_beat": 1.0, "duration_beats": 0.25},
+                {"pitch": 69, "velocity": 80, "start_beat": 1.5, "duration_beats": 2.5}
+            ],
+            "total_beats": 4,
+            "loop": false,
+            "transpose_to_scene_key": true
+        }
+    }
+}

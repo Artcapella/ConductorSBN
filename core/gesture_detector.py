@@ -10,8 +10,8 @@ Dependencies:
 Gesture set (rule-based, no ML training required):
     - OPEN_PALM:    All 5 fingers extended          → Resume all sound
     - FIST:         All 5 fingers closed             → Cut all sound
-    - THUMBS_UP:    Thumb extended upward            → Volume up
-    - THUMBS_DOWN:  Thumb extended downward          → Volume down
+    - INDEX_POINT:  Only index finger extended       → Volume up
+    - PINKY_UP:     Only pinky finger extended       → Volume down
     - SWIPE_RIGHT:  Palm moves right across frame    → Fade in
     - SWIPE_LEFT:   Palm moves left across frame     → Fade out
 """
@@ -89,8 +89,8 @@ class Gesture(Enum):
     NONE = auto()
     OPEN_PALM = auto()
     FIST = auto()
-    THUMBS_UP = auto()
-    THUMBS_DOWN = auto()
+    INDEX_POINT = auto()
+    PINKY_UP = auto()
     SWIPE_LEFT = auto()
     SWIPE_RIGHT = auto()
 
@@ -98,8 +98,8 @@ class Gesture(Enum):
 GESTURE_ACTIONS = {
     Gesture.OPEN_PALM:   "resume_all",
     Gesture.FIST:        "cut_all",
-    Gesture.THUMBS_UP:   "volume_up",
-    Gesture.THUMBS_DOWN: "volume_down",
+    Gesture.INDEX_POINT: "volume_up",
+    Gesture.PINKY_UP:    "volume_down",
     Gesture.SWIPE_LEFT:  "fade_out",
     Gesture.SWIPE_RIGHT: "fade_in",
 }
@@ -311,11 +311,13 @@ class GestureDetector:
                     min(abs(delta) / 0.5, 1.0),
                 )
 
-        if thumb_extended and all_closed and thumb_tip.y < lm[2].y - 0.05:
-            return Gesture.THUMBS_UP, 0.85
+        # INDEX_POINT: only index finger extended, others closed
+        if fingers_extended[0] and not fingers_extended[1] and not fingers_extended[2] and not fingers_extended[3]:
+            return Gesture.INDEX_POINT, 0.9
 
-        if all_closed and not thumb_extended and thumb_tip.y > lm[2].y + 0.05:
-            return Gesture.THUMBS_DOWN, 0.85
+        # PINKY_UP: only pinky finger extended, others closed
+        if not fingers_extended[0] and not fingers_extended[1] and not fingers_extended[2] and fingers_extended[3]:
+            return Gesture.PINKY_UP, 0.9
 
         if all_open and thumb_extended:
             return Gesture.OPEN_PALM, 0.9
