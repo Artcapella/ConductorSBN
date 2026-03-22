@@ -32,6 +32,11 @@ MIXER_CONFIG_PATH = "config/mixer_config.yaml"
 DEFAULT_LIBRARY_PATH = "assets/music/scenes"
 
 
+def _fmt_time(seconds: float) -> str:
+    s = int(seconds)
+    return f"{s // 60}:{s % 60:02d}"
+
+
 def _load_library_path() -> str:
     try:
         with open(MIXER_CONFIG_PATH, "r") as f:
@@ -53,10 +58,13 @@ class AdaptiveMixerView(ctk.CTkFrame):
 
     POLL_MS = 100  # Slider/status refresh rate
 
-    def __init__(self, parent, mixer, scene_manager):
+    def __init__(self, parent, mixer, scene_manager,
+                 music_controller=None, music_bindings=None):
         super().__init__(parent, fg_color="transparent")
         self._mixer = mixer
         self._scene_mgr = scene_manager
+        self._mc = music_controller
+        self._bm = music_bindings
 
         # Per-stem widget references
         self._stem_sliders: dict = {}   # stem_id -> CTkSlider
@@ -94,6 +102,7 @@ class AdaptiveMixerView(ctk.CTkFrame):
         self._rescan_and_refresh()
         self._refresh_stems()
         self._refresh_leitmotifs()
+        self._refresh_music_library()
         self._poll_job = self.after(self.POLL_MS, self._poll)
 
     def deactivate(self):
@@ -113,6 +122,7 @@ class AdaptiveMixerView(ctk.CTkFrame):
         self._build_controls_bar()   # row 3
         self._build_leitmotif_bar()  # row 4
         self._build_status_bar()     # row 5
+        self._build_music_section()  # row 6
 
     def _build_scene_bar(self):
         bar = ctk.CTkFrame(self, corner_radius=10)
@@ -158,6 +168,32 @@ class AdaptiveMixerView(ctk.CTkFrame):
             command=self._stop,
         )
         self._stop_btn.pack(side="left", padx=3)
+
+        # Timeline row (row 1 of the scene bar frame)
+        tl = ctk.CTkFrame(bar, fg_color="transparent")
+        tl.grid(row=1, column=0, columnspan=4, sticky="ew", padx=14, pady=(0, 10))
+        tl.grid_columnconfigure(1, weight=1)
+
+        self._timeline_pos_var = tk.StringVar(value="0:00")
+        ctk.CTkLabel(
+            tl, textvariable=self._timeline_pos_var,
+            font=ctk.CTkFont(size=10, family="Courier"),
+            width=36, anchor="e", text_color="gray55",
+        ).grid(row=0, column=0, padx=(0, 6))
+
+        self._timeline_slider = ctk.CTkSlider(
+            tl, from_=0.0, to=1.0, height=16,
+            command=self._on_timeline_seek,
+        )
+        self._timeline_slider.set(0.0)
+        self._timeline_slider.grid(row=0, column=1, sticky="ew")
+
+        self._timeline_dur_var = tk.StringVar(value="0:00")
+        ctk.CTkLabel(
+            tl, textvariable=self._timeline_dur_var,
+            font=ctk.CTkFont(size=10, family="Courier"),
+            width=36, anchor="w", text_color="gray55",
+        ).grid(row=0, column=2, padx=(6, 0))
 
     def _build_library_bar(self):
         bar = ctk.CTkFrame(self, corner_radius=10, fg_color=("gray90", "gray17"))
@@ -555,6 +591,13 @@ class AdaptiveMixerView(ctk.CTkFrame):
         self._stem_last_source[stem_id] = "user"
         self._mixer.toggle_stem(stem_id)
 
+    def _on_timeline_seek(self, value: float):
+        if self._updating_sliders or not self._mixer:
+            return
+        _, total = self._mixer.get_playback_position()
+        if total > 0:
+            self._mixer.seek(float(value) * total)
+
     def _on_intensity_slider(self, value):
         level = int(round(float(value)))
         self._intensity_var.set(level)
@@ -596,7 +639,9 @@ class AdaptiveMixerView(ctk.CTkFrame):
     def _poll(self):
         self._sync_stem_meters()
         self._sync_master_slider()
+        self._sync_timeline()
         self._sync_status_bar()
+        self._update_music_now_playing()
         self._poll_job = self.after(self.POLL_MS, self._poll)
 
     def _sync_stem_meters(self):
@@ -641,6 +686,20 @@ class AdaptiveMixerView(ctk.CTkFrame):
                 # Clear gesture source flag once slider has caught up
                 if source == "gesture" and slider and abs(slider.get() - target) < 0.02:
                     self._stem_last_source[stem_id] = None
+        finally:
+            self._updating_sliders = False
+
+    def _sync_timeline(self):
+        if not self._mixer or not hasattr(self, "_timeline_slider"):
+            return
+        current, total = self._mixer.get_playback_position()
+        if total <= 0:
+            return
+        self._timeline_pos_var.set(_fmt_time(current))
+        self._timeline_dur_var.set(_fmt_time(total))
+        self._updating_sliders = True
+        try:
+            self._timeline_slider.set(current / total)
         finally:
             self._updating_sliders = False
 
@@ -694,3 +753,267 @@ class AdaptiveMixerView(ctk.CTkFrame):
         else:
             self._gesture_var.set("Gesture: ○ OFF")
             self._gesture_lbl.configure(text_color="gray50")
+
+    # ── Background Music section ───────────────────────────────────
+
+    def _build_music_section(self):
+        """Embeds the background music player below the status bar."""
+        if not self._mc:
+            return
+
+        outer = ctk.CTkFrame(self, corner_radius=10)
+        outer.grid(row=6, column=0, sticky="nsew", padx=8, pady=(3, 8))
+        outer.grid_columnconfigure(0, weight=1)
+        outer.grid_rowconfigure(3, weight=1)
+
+        # Header row: title + folder path + change folder button
+        hdr = ctk.CTkFrame(outer, fg_color="transparent")
+        hdr.grid(row=0, column=0, sticky="ew", padx=10, pady=(8, 2))
+        hdr.grid_columnconfigure(1, weight=1)
+
+        ctk.CTkLabel(
+            hdr, text="Background Music",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).grid(row=0, column=0, sticky="w")
+
+        self._music_folder_var = tk.StringVar(value="music/")
+        ctk.CTkLabel(
+            hdr, textvariable=self._music_folder_var,
+            font=ctk.CTkFont(size=10), text_color="gray60", anchor="w",
+        ).grid(row=0, column=1, sticky="ew", padx=8)
+
+        ctk.CTkButton(
+            hdr, text="📁 Change Folder", width=130, height=28,
+            command=self._music_choose_folder,
+        ).grid(row=0, column=2)
+
+        # Now-playing + transport row
+        np_row = ctk.CTkFrame(outer, fg_color="transparent")
+        np_row.grid(row=1, column=0, sticky="ew", padx=10, pady=2)
+        np_row.grid_columnconfigure(0, weight=1)
+
+        self._music_now_playing_var = tk.StringVar(value="— nothing playing —")
+        ctk.CTkLabel(
+            np_row, textvariable=self._music_now_playing_var,
+            font=ctk.CTkFont(size=12), anchor="w",
+        ).grid(row=0, column=0, sticky="ew")
+
+        self._music_state_var = tk.StringVar(value="Stopped")
+        ctk.CTkLabel(
+            np_row, textvariable=self._music_state_var,
+            font=ctk.CTkFont(size=10), text_color="gray60",
+        ).grid(row=0, column=1, padx=8)
+
+        transport = ctk.CTkFrame(np_row, fg_color="transparent")
+        transport.grid(row=0, column=2)
+        ctk.CTkButton(transport, text="⏮", width=32, height=28,
+                      command=self._music_prev).pack(side="left", padx=2)
+        self._music_play_btn = ctk.CTkButton(
+            transport, text="▶", width=32, height=28,
+            command=self._music_play_pause)
+        self._music_play_btn.pack(side="left", padx=2)
+        ctk.CTkButton(transport, text="⏹", width=32, height=28,
+                      command=self._music_stop).pack(side="left", padx=2)
+        ctk.CTkButton(transport, text="⏭", width=32, height=28,
+                      command=self._music_next).pack(side="left", padx=2)
+
+        # Volume row
+        vol_row = ctk.CTkFrame(outer, fg_color="transparent")
+        vol_row.grid(row=2, column=0, sticky="ew", padx=10, pady=(2, 4))
+        vol_row.grid_columnconfigure(1, weight=1)
+
+        ctk.CTkLabel(vol_row, text="Volume:", font=ctk.CTkFont(size=11),
+                     ).grid(row=0, column=0, padx=(0, 8))
+        self._music_vol_slider = ctk.CTkSlider(
+            vol_row, from_=0.0, to=1.0,
+            command=self._on_music_volume,
+        )
+        self._music_vol_slider.set(self._mc.get_volume())
+        self._music_vol_slider.grid(row=0, column=1, sticky="ew", padx=4)
+        self._music_vol_label = ctk.CTkLabel(
+            vol_row, text=f"{int(self._mc.get_volume() * 100)}%",
+            font=ctk.CTkFont(size=11), width=38,
+        )
+        self._music_vol_label.grid(row=0, column=2, padx=4)
+
+        # Track list
+        self._music_track_list = ctk.CTkScrollableFrame(outer, height=130)
+        self._music_track_list.grid(row=3, column=0, sticky="nsew", padx=8, pady=(0, 8))
+        self._music_track_list.grid_columnconfigure(0, weight=1)
+
+    def _refresh_music_library(self):
+        if not self._mc or not hasattr(self, "_music_track_list"):
+            return
+        for w in self._music_track_list.winfo_children():
+            w.destroy()
+
+        library = self._mc.library
+        bindings = self._bm.get_all() if self._bm else {}
+        key_for_idx = {v: k for k, v in bindings.items()}
+
+        if not library:
+            ctk.CTkLabel(
+                self._music_track_list,
+                text="No tracks found. Add music files to the folder above.",
+                font=ctk.CTkFont(size=11), text_color="gray60",
+            ).grid(row=0, column=0, pady=12)
+            return
+
+        for idx, track in enumerate(library):
+            row = ctk.CTkFrame(self._music_track_list, corner_radius=4, height=34)
+            row.grid(row=idx, column=0, sticky="ew", padx=2, pady=1)
+            row.grid_propagate(False)
+            row.grid_columnconfigure(1, weight=1)
+
+            key_label = key_for_idx.get(idx, "")
+            ctk.CTkLabel(
+                row,
+                text=key_label.upper() if key_label else "—",
+                font=ctk.CTkFont(size=11, weight="bold"),
+                width=26, text_color=("gray30", "gray70"),
+            ).grid(row=0, column=0, padx=(6, 3), pady=3)
+
+            ctk.CTkLabel(
+                row, text=track.name, anchor="w",
+                font=ctk.CTkFont(size=11),
+            ).grid(row=0, column=1, sticky="ew", padx=3)
+
+            ctk.CTkButton(
+                row, text="▶", width=26, height=24,
+                command=lambda t=track: self._mc.play(t),
+            ).grid(row=0, column=2, padx=3, pady=3)
+
+            ctk.CTkButton(
+                row, text="⌨", width=26, height=24,
+                command=lambda i=idx: self._open_music_bind_dialog(i),
+            ).grid(row=0, column=3, padx=(0, 6), pady=3)
+
+    def _music_choose_folder(self):
+        folder = filedialog.askdirectory(title="Select Music Folder")
+        if folder and self._mc:
+            self._music_folder_var.set(folder)
+            self._mc.load_library(folder)
+            self._refresh_music_library()
+
+    def _music_play_pause(self):
+        if not self._mc:
+            return
+        from core.music_controller import PlaybackState
+        state = self._mc.get_state()
+        if state == PlaybackState.PLAYING:
+            self._mc.pause()
+        elif state == PlaybackState.PAUSED:
+            self._mc.resume()
+        else:
+            self._mc.resume()
+
+    def _music_stop(self):
+        if self._mc:
+            self._mc.stop()
+
+    def _music_next(self):
+        if self._mc:
+            self._mc.play_next()
+
+    def _music_prev(self):
+        if self._mc:
+            self._mc.play_previous()
+
+    def _on_music_volume(self, value: float):
+        if self._mc:
+            self._mc.set_volume(float(value))
+        if hasattr(self, "_music_vol_label"):
+            self._music_vol_label.configure(text=f"{int(float(value) * 100)}%")
+
+    def _open_music_bind_dialog(self, track_idx: int):
+        if not self._mc or not self._bm:
+            return
+        dlg = _MusicBindKeyDialog(self, track_idx, self._mc.library[track_idx].name)
+        self.wait_window(dlg)
+        if dlg.result is not None:
+            key, idx = dlg.result
+            if key:
+                self._bm.bind(key, idx)
+            self._refresh_music_library()
+
+    def _update_music_now_playing(self):
+        if not self._mc or not hasattr(self, "_music_now_playing_var"):
+            return
+        from core.music_controller import PlaybackState
+        track = self._mc.get_current_track()
+        state = self._mc.get_state()
+        self._music_now_playing_var.set(track.name if track else "— nothing playing —")
+        state_map = {
+            PlaybackState.PLAYING: ("Playing", "#4caf50"),
+            PlaybackState.PAUSED: ("Paused", "orange"),
+            PlaybackState.STOPPED: ("Stopped", "gray60"),
+            PlaybackState.FADING_IN: ("Fading In", "#4caf50"),
+            PlaybackState.FADING_OUT: ("Fading Out", "orange"),
+        }
+        label, _ = state_map.get(state, ("Unknown", "gray60"))
+        self._music_state_var.set(label)
+        if hasattr(self, "_music_play_btn"):
+            self._music_play_btn.configure(
+                text="⏸" if state == PlaybackState.PLAYING else "▶"
+            )
+
+
+class _MusicBindKeyDialog(ctk.CTkToplevel):
+    """Capture a key to bind to a background music track."""
+
+    def __init__(self, parent, track_idx: int, track_name: str):
+        super().__init__(parent)
+        self.title("Bind Key to Track")
+        self.geometry("360x220")
+        self.resizable(False, False)
+        self.result = None
+        self.track_idx = track_idx
+
+        self.transient(parent.winfo_toplevel())
+        self.grab_set()
+        self.focus_set()
+
+        ctk.CTkLabel(
+            self, text=f"Binding: {track_name}",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).pack(padx=20, pady=(20, 4))
+
+        ctk.CTkLabel(
+            self, text="Press a number key (0-9) to assign it:",
+            font=ctk.CTkFont(size=12),
+        ).pack(padx=20, pady=(0, 8))
+
+        self._key_lbl = ctk.CTkLabel(
+            self, text="[ press a key ]",
+            font=ctk.CTkFont(size=22, weight="bold"),
+        )
+        self._key_lbl.pack(pady=(0, 16))
+        self.bind("<KeyPress>", self._capture)
+
+        btns = ctk.CTkFrame(self, fg_color="transparent")
+        btns.pack()
+        ctk.CTkButton(btns, text="Confirm", width=120,
+                      command=self._confirm).pack(side="left", padx=8)
+        ctk.CTkButton(btns, text="Unbind", width=120,
+                      fg_color="#c62828", hover_color="#b71c1c",
+                      command=self._unbind).pack(side="left", padx=8)
+
+        self._captured = None
+
+    def _capture(self, event):
+        import tkinter as _tk
+        if isinstance(event.widget, _tk.Entry):
+            return
+        key = event.keysym.lower()
+        if key.isdigit() or key.isalpha():
+            self._captured = key
+            self._key_lbl.configure(text=key.upper())
+
+    def _confirm(self):
+        if self._captured:
+            self.result = (self._captured, self.track_idx)
+        self.destroy()
+
+    def _unbind(self):
+        self.result = ("", self.track_idx)
+        self.destroy()

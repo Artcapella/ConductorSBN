@@ -352,6 +352,21 @@ class AdaptiveMixer:
 
     # ── Status ─────────────────────────────────────────────────────
 
+    def get_playback_position(self) -> tuple:
+        """Return (current_seconds, total_seconds) from the first loaded stem."""
+        with self._lock:
+            if not self._stems:
+                return 0.0, 0.0
+            stem = next(iter(self._stems.values()))
+            return stem._cursor / self.SAMPLE_RATE, stem._total_frames / self.SAMPLE_RATE
+
+    def seek(self, position_seconds: float):
+        """Seek all stems to position_seconds (clamped to valid range)."""
+        with self._lock:
+            for stem in self._stems.values():
+                frame = int(position_seconds * self.SAMPLE_RATE)
+                stem._cursor = max(0, min(frame, stem._total_frames - 1))
+
     def get_stem_status(self) -> dict:
         """Return current volume/mute status of all stems."""
         status = {}

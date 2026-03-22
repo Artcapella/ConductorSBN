@@ -1,7 +1,7 @@
 """
 ConductorSBN – Main GUI Application
-Provides a sidebar to switch between views: Keywords, Soundboard, Music,
-Gestures, and Voice FX.
+Provides a sidebar to switch between views: Keywords, Soundboard,
+Gestures, Voice FX, and Adaptive Mixer.
 """
 
 import customtkinter as ctk
@@ -9,7 +9,6 @@ from pygame import mixer
 
 from gui.keyword_view import KeywordView
 from gui.soundboard_view import SoundboardView
-from gui.music_view import MusicView
 from gui.gesture_view import GestureView
 from gui.effects_view import EffectsView
 from gui.adaptive_mixer_view import AdaptiveMixerView
@@ -93,7 +92,7 @@ class ConductorApp(ctk.CTk):
                           fg_color=("gray88", "gray14"))
         sb.grid(row=0, column=0, sticky="nsew")
         sb.grid_propagate(False)
-        sb.grid_rowconfigure(7, weight=1)
+        sb.grid_rowconfigure(6, weight=1)
 
         ctk.CTkLabel(
             sb, text="ConductorSBN",
@@ -112,40 +111,34 @@ class ConductorApp(ctk.CTk):
         )
         self._sb_btn.grid(row=2, column=0, padx=15, pady=4)
 
-        self._music_btn = ctk.CTkButton(
-            sb, text="\U0001F3BC  Music", width=155, height=38,
-            anchor="w", command=self._show_music,
-        )
-        self._music_btn.grid(row=3, column=0, padx=15, pady=4)
-
         self._gesture_btn = ctk.CTkButton(
             sb, text="\U0001F44B  Gestures", width=155, height=38,
             anchor="w", command=self._show_gestures,
         )
-        self._gesture_btn.grid(row=4, column=0, padx=15, pady=4)
+        self._gesture_btn.grid(row=3, column=0, padx=15, pady=4)
 
         self._effects_btn = ctk.CTkButton(
             sb, text="\U0001F3A4  Voice FX", width=155, height=38,
             anchor="w", command=self._show_effects,
         )
-        self._effects_btn.grid(row=5, column=0, padx=15, pady=4)
+        self._effects_btn.grid(row=4, column=0, padx=15, pady=4)
 
         self._mixer_btn = ctk.CTkButton(
             sb, text="\U0001F3BC  Adaptive Mixer", width=155, height=38,
             anchor="w", command=self._show_adaptive_mixer,
         )
-        self._mixer_btn.grid(row=6, column=0, padx=15, pady=4)
+        self._mixer_btn.grid(row=5, column=0, padx=15, pady=4)
 
         # Theme picker at bottom
         ctk.CTkLabel(sb, text="Theme:", font=ctk.CTkFont(size=11)).grid(
-            row=8, column=0, padx=18, pady=(0, 2), sticky="w",
+            row=7, column=0, padx=18, pady=(0, 2), sticky="w",
         )
         menu = ctk.CTkOptionMenu(
             sb, values=["Dark", "Light", "System"], width=145,
             command=lambda v: ctk.set_appearance_mode(v),
         )
         menu.set("Dark")
-        menu.grid(row=9, column=0, padx=18, pady=(0, 20))
+        menu.grid(row=8, column=0, padx=18, pady=(0, 20))
 
     # ── Content area ──────────────────────────────────────────────
     def _build_content(self):
@@ -159,11 +152,6 @@ class ConductorApp(ctk.CTk):
             self._content, CONFIG,
             music_controller=self.music_controller,
             music_bindings=self.music_bindings,
-        )
-        self._music_view = MusicView(
-            self._content,
-            self.music_controller,
-            self.music_bindings,
         )
         self._gesture_view = GestureView(
             self._content,
@@ -180,17 +168,19 @@ class ConductorApp(ctk.CTk):
             self._content,
             mixer=self.adaptive_mixer,
             scene_manager=getattr(self, "_mixer_scene_mgr", None) or _NoOpSceneManager(),
+            music_controller=self.music_controller,
+            music_bindings=self.music_bindings,
         )
         # Wire bidirectional gesture ↔ GUI sync
         if self._mixer_gesture_ctrl:
             self._mixer_gesture_ctrl.set_view(self._mixer_view)
 
         self._all_views = [
-            self._kw_view, self._sb_view, self._music_view,
+            self._kw_view, self._sb_view,
             self._gesture_view, self._effects_view, self._mixer_view,
         ]
         self._all_btns = [
-            self._kw_btn, self._sb_btn, self._music_btn,
+            self._kw_btn, self._sb_btn,
             self._gesture_btn, self._effects_btn, self._mixer_btn,
         ]
 
@@ -224,9 +214,6 @@ class ConductorApp(ctk.CTk):
     def _show_soundboard(self):
         self._switch_to("sb", self._sb_view, self._sb_btn)
         self._sb_view.activate()
-
-    def _show_music(self):
-        self._switch_to("music", self._music_view, self._music_btn)
 
     def _show_gestures(self):
         self._switch_to("gestures", self._gesture_view, self._gesture_btn)
@@ -285,7 +272,8 @@ class ConductorApp(ctk.CTk):
             self._mixer_gesture_ctrl.process_gesture(
                 event.gesture.name, event.confidence
             )
-        self._handle_gesture_action(event.action)
+        if self.adaptive_mixer:
+            self._handle_mixer_action(event.action)
 
     def _update_gesture_status(self):
         """Push gesture detector on/off state to the mixer view status bar."""
@@ -296,31 +284,30 @@ class ConductorApp(ctk.CTk):
                 pass
         self.after(2000, self._update_gesture_status)
 
+    def _handle_mixer_action(self, action: str):
+        """Route a gesture action directly to the adaptive mixer."""
+        am = self.adaptive_mixer
+        if action == "cut_all":
+            am.panic()
+        elif action == "resume_all":
+            if not am._running and am._scene_config:
+                am.start()
+            elif am._running and self._mixer_gesture_ctrl:
+                # Restore stems after a panic by re-applying current intensity
+                am.set_intensity(self._mixer_gesture_ctrl._current_intensity)
+        elif action == "volume_up":
+            am.set_master_volume(min(am._master_volume + 0.1, 1.0))
+        elif action == "volume_down":
+            am.set_master_volume(max(am._master_volume - 0.1, 0.0))
+        elif action == "fade_in":
+            am.set_master_volume(min(am._master_volume + 0.15, 1.0))
+        elif action == "fade_out":
+            am.set_master_volume(max(am._master_volume - 0.15, 0.0))
+
     def _handle_gesture_action(self, action: str):
-        """Route a gesture action to the appropriate subsystem."""
-        from core.sound_manager import SoundManager
-        mc = self.music_controller
+        """Preview a gesture action — used by GestureView for testing only."""
         if action == "cut_all":
             mixer.stop()
-            mc.pause()
-        elif action == "resume_all":
-            mc.resume()
-        elif action == "volume_up":
-            mc.set_volume(min(mc.get_volume() + 0.1, 1.0))
-        elif action == "volume_down":
-            mc.set_volume(max(mc.get_volume() - 0.1, 0.0))
-        elif action == "fade_in":
-            mc.fade_in()
-        elif action == "fade_out":
-            mc.fade_out()
-        elif action == "play_music":
-            mc.resume()
-        elif action == "pause_music":
-            mc.pause()
-        elif action == "next_track":
-            mc.play_next()
-        elif action == "prev_track":
-            mc.play_previous()
 
     # ── Voice command dispatcher (called from soundboard_view) ────
     def handle_music_voice_command(self, action: str):

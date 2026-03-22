@@ -159,6 +159,12 @@ class GestureDetector:
         self._last_fired: dict[Gesture, float] = {}
         self._current_gesture: str = "NONE"
 
+        # How far (in normalised Y) the fingertip must be past the PIP joint
+        # to count as clearly extended (OPEN_PALM) or clearly closed (FIST).
+        # Raise these values to make those gestures harder to trigger.
+        self._palm_margin: float = 0.06  # tip must be 6% above PIP to count as extended
+        self._fist_margin: float = 0.06  # tip must be 6% below PIP to count as closed
+
         self._latest_result = None
         self._result_lock = Lock()
 
@@ -293,8 +299,17 @@ class GestureDetector:
         else:
             thumb_extended = thumb_tip.x < thumb_ip.x
 
-        all_closed = not any(fingers_extended)
-        all_open   = all(fingers_extended)
+        # Stricter checks for FIST/OPEN_PALM: fingertip must be clearly past the PIP joint
+        fingers_clearly_extended = [
+            lm[tip].y < lm[pip].y - self._palm_margin
+            for tip, pip in zip(tip_ids, pip_ids)
+        ]
+        fingers_clearly_closed = [
+            lm[tip].y > lm[pip].y + self._fist_margin
+            for tip, pip in zip(tip_ids, pip_ids)
+        ]
+        all_closed = all(fingers_clearly_closed)
+        all_open   = all(fingers_clearly_extended)
 
         now = time.time()
         wrist_x = lm[0].x

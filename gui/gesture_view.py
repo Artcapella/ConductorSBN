@@ -54,7 +54,8 @@ class GestureView(ctk.CTkFrame):
             Thread(target=self._populate_cameras, daemon=True).start()
 
     def activate(self):
-        pass
+        if self.detector.is_running and not self._preview_job:
+            self._schedule_preview()
 
     def deactivate(self):
         self._cancel_preview()
