@@ -236,10 +236,7 @@ class ConductorApp(ctk.CTk):
             except Exception:
                 library_path = "assets/music/scenes"
 
-            self.adaptive_mixer = AdaptiveMixer(
-                soundfont_path="assets/soundfonts/FluidR3_GM.sf2",
-                leitmotif_config_path="assets/leitmotifs/leitmotifs.json",
-            )
+            self.adaptive_mixer = AdaptiveMixer()
             self._mixer_scene_mgr = SceneManager(library_path)
             self._mixer_gesture_ctrl = MixerGestureController(self.adaptive_mixer)
             self._mixer_keyboard_ctrl = MixerKeyboardController(self.adaptive_mixer)

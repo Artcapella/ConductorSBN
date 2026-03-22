@@ -1,8 +1,8 @@
 """
 adaptive_mixer — Dynamic adaptive music mixing system for ConductorSBN.
 
-Provides beat-synchronized stem layering, procedural MIDI leitmotifs,
-gesture-driven intensity control, and keyboard hotkeys.
+Provides beat-synchronized stem layering, gesture-driven intensity control,
+and keyboard hotkeys.
 
 Quick start:
     from adaptive_mixer import AdaptiveMixer, MixerGestureController, \
@@ -23,7 +23,6 @@ Quick start:
 from .mixer import AdaptiveMixer
 from .beat_clock import BeatClock
 from .stem_player import StemPlayer
-from .midi_generator import MidiGenerator
 from .gesture_controller import MixerGestureController
 from .keyboard_controller import MixerKeyboardController
 from .scene_manager import SceneManager
@@ -32,7 +31,6 @@ __all__ = [
     "AdaptiveMixer",
     "BeatClock",
     "StemPlayer",
-    "MidiGenerator",
     "MixerGestureController",
     "MixerKeyboardController",
     "SceneManager",

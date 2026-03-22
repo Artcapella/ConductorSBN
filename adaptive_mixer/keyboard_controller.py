@@ -11,8 +11,6 @@ Key mapping (all require Ctrl modifier):
     Ctrl+Right            : Increase intensity
     Ctrl+Left             : Decrease intensity
     Ctrl+space            : Panic (fade all to silence)
-    Ctrl+t                : Cycle and trigger next leitmotif
-    Ctrl+l                : Stop current leitmotif
 
 Function keys (no modifier needed — not used by existing system):
     F1-F9                 : Load scene by index
@@ -26,7 +24,6 @@ class MixerKeyboardController:
     def __init__(self, mixer: AdaptiveMixer):
         self._mixer = mixer
         self._available_scenes: list = []
-        self._leitmotif_cycle_idx: int = 0
         self._scene_cycle_idx: int = 0
         self._current_intensity: int = 0
 
@@ -90,23 +87,6 @@ class MixerKeyboardController:
             print("[MixerKeys] PANIC — all silent")
             return
 
-        # Ctrl+T: cycle leitmotifs
-        if key_lower == "t":
-            leitmotifs = self._mixer.get_leitmotif_names()
-            if leitmotifs:
-                lm_id = leitmotifs[self._leitmotif_cycle_idx % len(leitmotifs)]
-                self._mixer.trigger_leitmotif(lm_id)
-                print(f"[MixerKeys] Leitmotif: {lm_id}")
-                self._leitmotif_cycle_idx = (
-                    self._leitmotif_cycle_idx + 1
-                ) % len(leitmotifs)
-            return
-
-        # Ctrl+L: stop leitmotif
-        if key_lower == "l":
-            self._mixer.stop_leitmotif()
-            print("[MixerKeys] Leitmotif stopped")
-            return
 
     def handle_function_key(self, key: str):
         """

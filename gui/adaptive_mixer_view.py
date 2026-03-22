@@ -29,6 +29,7 @@ import yaml
 
 
 MIXER_CONFIG_PATH = "config/mixer_config.yaml"
+MOTIF_STEMS_CONFIG_PATH = "config/motif_stems.yaml"
 DEFAULT_LIBRARY_PATH = "assets/music/scenes"
 
 
@@ -66,10 +67,15 @@ class AdaptiveMixerView(ctk.CTkFrame):
         self._mc = music_controller
         self._bm = music_bindings
 
-        # Per-stem widget references
+        # Per-stem widget references (scene stems)
         self._stem_sliders: dict = {}   # stem_id -> CTkSlider
         self._stem_vol_labels: dict = {}
         self._stem_mute_btns: dict = {}
+
+        # Per-extra-stem widget references
+        self._extra_stem_sliders: dict = {}   # key -> CTkSlider
+        self._extra_stem_vol_labels: dict = {}
+        self._extra_stem_mute_btns: dict = {}
 
         # Scene list: display-string -> scene path
         self._scene_map: dict = {}
@@ -101,7 +107,7 @@ class AdaptiveMixerView(ctk.CTkFrame):
     def activate(self):
         self._rescan_and_refresh()
         self._refresh_stems()
-        self._refresh_leitmotifs()
+        self._refresh_motif_stems()
         self._refresh_music_library()
         self._poll_job = self.after(self.POLL_MS, self._poll)
 
@@ -116,13 +122,13 @@ class AdaptiveMixerView(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(2, weight=1)  # Stems panel expands
 
-        self._build_scene_bar()      # row 0
-        self._build_library_bar()    # row 1
-        self._build_stems_panel()    # row 2
-        self._build_controls_bar()   # row 3
-        self._build_leitmotif_bar()  # row 4
-        self._build_status_bar()     # row 5
-        self._build_music_section()  # row 6
+        self._build_scene_bar()       # row 0
+        self._build_library_bar()     # row 1
+        self._build_stems_panel()     # row 2
+        self._build_controls_bar()    # row 3
+        self._build_motif_stems_bar() # row 4
+        self._build_status_bar()      # row 5
+        self._build_music_section()   # row 6
 
     def _build_scene_bar(self):
         bar = ctk.CTkFrame(self, corner_radius=10)
@@ -296,24 +302,36 @@ class AdaptiveMixerView(ctk.CTkFrame):
         )
         self._master_label.grid(row=0, column=6, padx=(4, 14))
 
-    def _build_leitmotif_bar(self):
-        bar = ctk.CTkFrame(self, corner_radius=10)
-        bar.grid(row=4, column=0, sticky="ew", padx=8, pady=3)
-        bar.grid_columnconfigure(1, weight=1)
+    def _build_motif_stems_bar(self):
+        outer = ctk.CTkFrame(self, corner_radius=10)
+        outer.grid(row=4, column=0, sticky="ew", padx=8, pady=3)
+        outer.grid_columnconfigure(0, weight=1)
+
+        hdr = ctk.CTkFrame(outer, fg_color="transparent")
+        hdr.grid(row=0, column=0, sticky="ew", padx=14, pady=(8, 4))
+        hdr.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(
-            bar, text="Leitmotifs:",
+            hdr, text="Motif Stems",
             font=ctk.CTkFont(size=12, weight="bold"),
-        ).grid(row=0, column=0, padx=(14, 8), pady=10)
-
-        self._leitmotif_btn_frame = ctk.CTkFrame(bar, fg_color="transparent")
-        self._leitmotif_btn_frame.grid(row=0, column=1, sticky="ew", pady=10)
+        ).grid(row=0, column=0, sticky="w", padx=(0, 10))
 
         ctk.CTkButton(
-            bar, text="Stop", width=60, height=28,
-            fg_color="#c62828", hover_color="#b71c1c",
-            command=self._stop_leitmotif,
-        ).grid(row=0, column=2, padx=(0, 14), pady=10)
+            hdr, text="+", width=28, height=26,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            fg_color=("#2e7d32", "#1b5e20"),
+            hover_color=("#1b5e20", "#0a3a00"),
+            command=self._open_motif_picker,
+        ).grid(row=0, column=2, sticky="e")
+
+        self._motif_btns_frame = ctk.CTkScrollableFrame(
+            outer, fg_color="transparent", height=48,
+            orientation="horizontal",
+        )
+        self._motif_btns_frame.grid(row=1, column=0, sticky="ew", padx=6, pady=(0, 8))
+
+        # Load persisted motif stems config
+        self._motif_stems_config: list = self._load_motif_stems_config()
 
     def _build_status_bar(self):
         bar = ctk.CTkFrame(self, corner_radius=10, fg_color=("gray90", "gray17"))
@@ -407,13 +425,16 @@ class AdaptiveMixerView(ctk.CTkFrame):
         self._stem_vol_labels.clear()
         self._stem_mute_btns.clear()
         self._stem_last_source.clear()
+        self._extra_stem_sliders.clear()
+        self._extra_stem_vol_labels.clear()
+        self._extra_stem_mute_btns.clear()
 
         if not self._mixer:
             ctk.CTkLabel(
                 self._stem_scroll,
                 text="Adaptive mixer not available.\nInstall soundfile and numpy.",
                 font=ctk.CTkFont(size=12), text_color="gray50", justify="center",
-            ).grid(row=0, column=0, columnspan=4, pady=30)
+            ).grid(row=0, column=0, columnspan=5, pady=30)
             return
 
         stems = self._mixer.get_stem_names()
@@ -422,11 +443,14 @@ class AdaptiveMixerView(ctk.CTkFrame):
                 self._stem_scroll,
                 text="No stems loaded — select a scene above and press Play.",
                 font=ctk.CTkFont(size=12), text_color="gray50",
-            ).grid(row=0, column=0, columnspan=4, pady=30)
+            ).grid(row=0, column=0, columnspan=5, pady=30)
+            # Still show any active extra stems
+            self._append_extra_stems_to_scroll(row_offset=1)
             return
 
         scene_cfg = self._mixer._scene_config or {}
 
+        # ── Scene stems ──────────────────────────────────────────
         for idx, stem_id in enumerate(stems):
             stem_cfg = scene_cfg.get("stems", {}).get(stem_id, {})
             default_vol = stem_cfg.get("default_volume", 0.5)
@@ -434,89 +458,277 @@ class AdaptiveMixerView(ctk.CTkFrame):
             target_vol = stem_obj._target_volume if stem_obj else default_vol
             is_muted = stem_obj._muted if stem_obj else True
 
-            # Row: [name 10ch] [slider fills] [vol% 5ch] [M btn]
+            # Row: [name] [slider] [vol%] [M]  (col 4 empty — alignment with extra stems)
             row = ctk.CTkFrame(self._stem_scroll, fg_color="transparent")
             row.grid(row=idx, column=0, sticky="ew", pady=2)
             row.grid_columnconfigure(1, weight=1)
 
-            # Name — left-aligned, fixed width
             ctk.CTkLabel(
-                row,
-                text=stem_id,
-                font=ctk.CTkFont(size=12),
-                width=90, anchor="e",
+                row, text=stem_id,
+                font=ctk.CTkFont(size=12), width=130, anchor="e",
                 text_color="gray70",
             ).grid(row=0, column=0, padx=(6, 8))
 
-            # Slider (acts as the fill bar — CTkSlider shows a filled track)
             slider = ctk.CTkSlider(
-                row,
-                from_=0.0, to=1.0,
+                row, from_=0.0, to=1.0,
                 command=lambda v, sid=stem_id: self._on_stem_slider(sid, float(v)),
             )
             slider.set(target_vol)
             slider.grid(row=0, column=1, sticky="ew", padx=4)
 
-            # Volume % label
             vol_lbl = ctk.CTkLabel(
-                row,
-                text=f"{int(target_vol * 100):3d}%",
-                font=ctk.CTkFont(size=11, family="Courier"),
-                width=40, anchor="e",
+                row, text=f"{int(target_vol * 100):3d}%",
+                font=ctk.CTkFont(size=11, family="Courier"), width=40, anchor="e",
             )
             vol_lbl.grid(row=0, column=2, padx=4)
 
-            # Mute button [M]
             mute_btn = ctk.CTkButton(
-                row,
-                text="M",
-                width=30, height=28,
+                row, text="M", width=30, height=28,
                 fg_color="gray35" if is_muted else ("#1565c0", "#0d47a1"),
                 hover_color="gray25" if is_muted else ("#0d47a1", "#01579b"),
                 font=ctk.CTkFont(size=11, weight="bold"),
                 command=lambda sid=stem_id: self._toggle_mute(sid),
             )
-            mute_btn.grid(row=0, column=3, padx=(4, 8))
+            mute_btn.grid(row=0, column=3, padx=(4, 4))
+
+            # Spacer column so widths match extra stem rows (which have a "-" button)
+            ctk.CTkLabel(row, text="", width=30).grid(row=0, column=4, padx=(0, 8))
 
             self._stem_sliders[stem_id] = slider
             self._stem_vol_labels[stem_id] = vol_lbl
             self._stem_mute_btns[stem_id] = mute_btn
             self._stem_last_source[stem_id] = None
 
-    # ── Leitmotif population ──────────────────────────────────────
+        # ── Extra stems (from other scenes) ──────────────────────
+        self._append_extra_stems_to_scroll(row_offset=len(stems))
 
-    def _refresh_leitmotifs(self):
-        for w in self._leitmotif_btn_frame.winfo_children():
-            w.destroy()
-
+    def _append_extra_stems_to_scroll(self, row_offset: int):
+        """Append active extra stems into the scroll panel with remove buttons."""
         if not self._mixer:
             return
-
-        leitmotifs = self._mixer.get_leitmotif_names()
-        if not leitmotifs:
-            ctk.CTkLabel(
-                self._leitmotif_btn_frame,
-                text="None loaded — add FluidR3_GM.sf2 and install pyfluidsynth",
-                font=ctk.CTkFont(size=10), text_color="gray50",
-            ).grid(row=0, column=0)
+        extra_keys = self._mixer.get_extra_stem_keys()
+        if not extra_keys:
             return
 
-        cols_per_row = 6
-        for idx, lm_id in enumerate(leitmotifs):
-            lm_name = lm_id.replace("_", " ").title()
-            if self._mixer._midi_gen:
-                lm_obj = self._mixer._midi_gen._leitmotifs.get(lm_id)
-                if lm_obj:
-                    lm_name = lm_obj.name
+        # Divider label
+        div_row = ctk.CTkFrame(self._stem_scroll, fg_color="transparent")
+        div_row.grid(row=row_offset, column=0, sticky="ew", pady=(6, 2))
+        div_row.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(
+            div_row, text="─── Extra Stems ───",
+            font=ctk.CTkFont(size=10), text_color="gray45",
+        ).grid(row=0, column=0, sticky="w", padx=10)
 
-            row = idx // cols_per_row
-            col = idx % cols_per_row
-            ctk.CTkButton(
-                self._leitmotif_btn_frame,
-                text=lm_name,
-                height=28, width=max(80, len(lm_name) * 8),
-                command=lambda lid=lm_id: self._mixer.trigger_leitmotif(lid),
-            ).grid(row=row, column=col, padx=3, pady=2)
+        extra_status = self._mixer.get_extra_stem_status()
+        for i, key in enumerate(extra_keys):
+            info = self._mixer._extra_stem_info.get(key, {})
+            scene_name = info.get("scene_name", key)
+            stem_id = info.get("stem_id", key)
+            display_name = f"{scene_name} › {stem_id}"
+
+            st = extra_status.get(key, {})
+            target_vol = st.get("target_volume", 0.5)
+            is_muted = st.get("muted", False)
+
+            row = ctk.CTkFrame(self._stem_scroll, fg_color="transparent")
+            row.grid(row=row_offset + 1 + i, column=0, sticky="ew", pady=2)
+            row.grid_columnconfigure(1, weight=1)
+
+            ctk.CTkLabel(
+                row, text=display_name,
+                font=ctk.CTkFont(size=11), width=130, anchor="e",
+                text_color=("#3a7ebf", "#5b9bd5"),
+            ).grid(row=0, column=0, padx=(6, 8))
+
+            slider = ctk.CTkSlider(
+                row, from_=0.0, to=1.0,
+                command=lambda v, k=key: self._on_extra_stem_slider(k, float(v)),
+            )
+            slider.set(target_vol)
+            slider.grid(row=0, column=1, sticky="ew", padx=4)
+
+            vol_lbl = ctk.CTkLabel(
+                row, text=f"{int(target_vol * 100):3d}%",
+                font=ctk.CTkFont(size=11, family="Courier"), width=40, anchor="e",
+            )
+            vol_lbl.grid(row=0, column=2, padx=4)
+
+            mute_btn = ctk.CTkButton(
+                row, text="M", width=30, height=28,
+                fg_color="gray35" if is_muted else ("#1565c0", "#0d47a1"),
+                hover_color="gray25" if is_muted else ("#0d47a1", "#01579b"),
+                font=ctk.CTkFont(size=11, weight="bold"),
+                command=lambda k=key: self._toggle_extra_mute(k),
+            )
+            mute_btn.grid(row=0, column=3, padx=(4, 4))
+
+            remove_btn = ctk.CTkButton(
+                row, text="−", width=28, height=28,
+                fg_color=("#c62828", "#7b1b1b"),
+                hover_color=("#b71c1c", "#5a1010"),
+                font=ctk.CTkFont(size=14, weight="bold"),
+                command=lambda k=key: self._remove_extra_stem(k),
+            )
+            remove_btn.grid(row=0, column=4, padx=(0, 8))
+
+            self._extra_stem_sliders[key] = slider
+            self._extra_stem_vol_labels[key] = vol_lbl
+            self._extra_stem_mute_btns[key] = mute_btn
+
+    # ── Motif stems config persistence ────────────────────────────
+
+    def _load_motif_stems_config(self) -> list:
+        try:
+            with open(MOTIF_STEMS_CONFIG_PATH, "r") as f:
+                data = yaml.safe_load(f) or {}
+            return data.get("motif_stems", [])
+        except Exception:
+            return []
+
+    def _save_motif_stems_config(self):
+        try:
+            with open(MOTIF_STEMS_CONFIG_PATH, "w") as f:
+                yaml.dump({"motif_stems": self._motif_stems_config}, f, default_flow_style=False)
+        except Exception as e:
+            print(f"[MixerView] Could not save motif stems config: {e}")
+
+    # ── Motif stems population ────────────────────────────────────
+
+    def _refresh_motif_stems(self):
+        """Rebuild buttons in the motif stems bar from the saved config list."""
+        if not hasattr(self, "_motif_btns_frame"):
+            return
+        for w in self._motif_btns_frame.winfo_children():
+            w.destroy()
+
+        if not self._motif_stems_config:
+            ctk.CTkLabel(
+                self._motif_btns_frame,
+                text="Press + to add motif stems",
+                font=ctk.CTkFont(size=10), text_color="gray45",
+            ).pack(side="left", padx=10, pady=8)
+            return
+
+        active_keys = set(self._mixer.get_extra_stem_keys()) if self._mixer else set()
+
+        for entry in self._motif_stems_config:
+            scene_dir = entry["scene_dir"]
+            scene_name = entry["scene_name"]
+            stem_id = entry["stem_id"]
+            scene_id = entry["scene_id"]
+            key = f"{scene_id}::{stem_id}"
+            is_active = key in active_keys
+
+            label = f"{scene_name} › {stem_id}"
+            btn = ctk.CTkButton(
+                self._motif_btns_frame,
+                text=label,
+                height=30, width=max(80, len(label) * 8),
+                fg_color=("#1565c0", "#0d47a1") if is_active else ("gray30", "gray22"),
+                hover_color=("#0d47a1", "#01579b") if is_active else ("gray22", "gray15"),
+                font=ctk.CTkFont(size=11),
+                command=lambda sd=scene_dir, sid=stem_id, k=key: self._on_motif_stem_click(sd, sid, k),
+            )
+            btn.pack(side="left", padx=3, pady=4)
+            btn.bind("<Button-3>", lambda e, en=entry, k=key: self._motif_stem_context_menu(e, en, k))
+
+    def _motif_stem_context_menu(self, event, entry: dict, key: str):
+        menu = tk.Menu(self, tearoff=0)
+        menu.add_command(
+            label="Delete",
+            command=lambda: self._delete_motif_stem(entry, key),
+        )
+        menu.tk_popup(event.x_root, event.y_root)
+
+    def _delete_motif_stem(self, entry: dict, key: str):
+        """Remove a stem from the saved motif stems config (and active mix if playing)."""
+        if entry in self._motif_stems_config:
+            self._motif_stems_config.remove(entry)
+            self._save_motif_stems_config()
+        if self._mixer and key in self._mixer.get_extra_stem_keys():
+            self._mixer.remove_extra_stem(key)
+            self._refresh_stems()
+        self._refresh_motif_stems()
+
+    # ── Motif stem picker dialog ──────────────────────────────────
+
+    def _open_motif_picker(self):
+        """Open a two-step dialog: pick scene → pick stem → add to motif bar."""
+        scenes = self._scene_mgr.get_scene_list() if self._scene_mgr else []
+        if not scenes:
+            return
+
+        dlg = ctk.CTkToplevel(self)
+        dlg.title("Add Motif Stem")
+        dlg.geometry("360x280")
+        dlg.resizable(False, False)
+        dlg.grab_set()
+        dlg.grid_columnconfigure(0, weight=1)
+
+        ctk.CTkLabel(
+            dlg, text="Select Song",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).grid(row=0, column=0, padx=20, pady=(18, 6), sticky="w")
+
+        scene_names = [s["name"] for s in scenes]
+        scene_var = tk.StringVar(value=scene_names[0])
+        scene_combo = ctk.CTkComboBox(
+            dlg, values=scene_names, variable=scene_var,
+            state="readonly", width=310,
+        )
+        scene_combo.grid(row=1, column=0, padx=20, pady=(0, 12), sticky="ew")
+
+        ctk.CTkLabel(
+            dlg, text="Select Stem",
+            font=ctk.CTkFont(size=13, weight="bold"),
+        ).grid(row=2, column=0, padx=20, pady=(0, 6), sticky="w")
+
+        stem_frame = ctk.CTkScrollableFrame(dlg, height=110, fg_color="transparent")
+        stem_frame.grid(row=3, column=0, padx=20, pady=(0, 12), sticky="ew")
+        stem_frame.grid_columnconfigure(0, weight=1)
+
+        def _populate_stems(*_):
+            for w in stem_frame.winfo_children():
+                w.destroy()
+            selected_name = scene_var.get()
+            scene_entry = next((s for s in scenes if s["name"] == selected_name), None)
+            if not scene_entry:
+                return
+            cfg = self._scene_mgr._scenes.get(scene_entry["id"], {}).get("config", {})
+            stems = list(cfg.get("stems", {}).keys())
+            for col_idx, sid in enumerate(stems):
+                ctk.CTkButton(
+                    stem_frame, text=sid,
+                    height=28, width=max(70, len(sid) * 9),
+                    command=lambda s=scene_entry, st=sid: _pick(s, st, dlg),
+                ).grid(row=col_idx // 4, column=col_idx % 4, padx=3, pady=3)
+
+        def _pick(scene_entry, stem_id, dialog):
+            entry = {
+                "scene_id": scene_entry["id"],
+                "scene_dir": scene_entry["path"],
+                "scene_name": scene_entry["name"],
+                "stem_id": stem_id,
+            }
+            # Avoid duplicates
+            already = any(
+                e["scene_id"] == entry["scene_id"] and e["stem_id"] == entry["stem_id"]
+                for e in self._motif_stems_config
+            )
+            if not already:
+                self._motif_stems_config.append(entry)
+                self._save_motif_stems_config()
+            dialog.destroy()
+            self._refresh_motif_stems()
+
+        scene_combo.configure(command=_populate_stems)
+        _populate_stems()
+
+        ctk.CTkButton(
+            dlg, text="Cancel", width=90, height=28,
+            fg_color=("gray35", "gray25"), hover_color=("gray25", "gray15"),
+            command=dlg.destroy,
+        ).grid(row=4, column=0, padx=20, pady=(0, 16), sticky="e")
 
     # ── User actions ──────────────────────────────────────────────
 
@@ -575,7 +787,7 @@ class AdaptiveMixerView(ctk.CTkFrame):
         self._play_btn.configure(state="normal", text="⏵  Play")
         self._populate_scene_dropdown()
         self._refresh_stems()
-        self._refresh_leitmotifs()
+        self._refresh_motif_stems()
         self._sync_bpm_key()
 
     def _on_stem_slider(self, stem_id: str, value: float):
@@ -593,6 +805,53 @@ class AdaptiveMixerView(ctk.CTkFrame):
             return
         self._stem_last_source[stem_id] = "user"
         self._mixer.toggle_stem(stem_id)
+
+    def _on_extra_stem_slider(self, key: str, value: float):
+        """Extra stem volume — static, only updated by direct user drag."""
+        if self._updating_sliders:
+            return
+        if self._mixer:
+            self._mixer.set_extra_stem_volume(key, value, fade_seconds=0.05)
+        lbl = self._extra_stem_vol_labels.get(key)
+        if lbl:
+            lbl.configure(text=f"{int(value * 100):3d}%")
+
+    def _toggle_extra_mute(self, key: str):
+        if not self._mixer:
+            return
+        status = self._mixer.get_extra_stem_status()
+        st = status.get(key, {})
+        if st.get("is_audible", False):
+            self._mixer.set_extra_stem_volume(key, 0.0)
+        else:
+            # Restore to slider position
+            slider = self._extra_stem_sliders.get(key)
+            vol = slider.get() if slider else 0.5
+            if vol < 0.05:
+                vol = 0.5
+            self._mixer.set_extra_stem_volume(key, vol)
+
+    def _remove_extra_stem(self, key: str):
+        if not self._mixer:
+            return
+        self._mixer.remove_extra_stem(key)
+        self._refresh_stems()
+        self._refresh_motif_stems()
+
+    def _on_motif_stem_click(self, scene_dir: str, stem_id: str, key: str):
+        if not self._mixer:
+            return
+        active_keys = set(self._mixer.get_extra_stem_keys())
+        if key in active_keys:
+            # Already active — toggle off
+            self._remove_extra_stem(key)
+        else:
+            try:
+                self._mixer.add_extra_stem(scene_dir, stem_id, volume=0.5)
+            except Exception as e:
+                print(f"[MixerView] Could not add motif stem: {e}")
+            self._refresh_stems()
+            self._refresh_motif_stems()
 
     def _on_timeline_seek(self, value: float):
         if self._updating_sliders or not self._mixer:
@@ -626,10 +885,6 @@ class AdaptiveMixerView(ctk.CTkFrame):
             self._mixer.set_master_volume(float(value))
         self._master_label.configure(text=f"{int(float(value) * 100)}%")
 
-    def _stop_leitmotif(self):
-        if self._mixer:
-            self._mixer.stop_leitmotif()
-
     def _panic(self):
         if self._mixer:
             self._mixer.panic()
@@ -641,6 +896,7 @@ class AdaptiveMixerView(ctk.CTkFrame):
 
     def _poll(self):
         self._sync_stem_meters()
+        self._sync_extra_stem_meters()
         self._sync_master_slider()
         self._sync_timeline()
         self._sync_status_bar()
@@ -691,6 +947,37 @@ class AdaptiveMixerView(ctk.CTkFrame):
                     self._stem_last_source[stem_id] = None
         finally:
             self._updating_sliders = False
+
+    def _sync_extra_stem_meters(self):
+        """Update extra stem labels and mute button colors. Sliders are NOT touched (static)."""
+        if not self._mixer:
+            return
+        # If the set of extra keys has changed, rebuild the stems panel
+        current_keys = set(self._mixer.get_extra_stem_keys())
+        displayed_keys = set(self._extra_stem_sliders.keys())
+        if current_keys != displayed_keys:
+            self._refresh_stems()
+            return
+
+        status = self._mixer.get_extra_stem_status()
+        for key, info in status.items():
+            is_muted = info["muted"]
+            is_audible = info["is_audible"]
+            live_vol = info["volume"]
+
+            lbl = self._extra_stem_vol_labels.get(key)
+            if lbl:
+                lbl.configure(text=f"{int(live_vol * 100):3d}%")
+
+            btn = self._extra_stem_mute_btns.get(key)
+            if btn:
+                if is_muted or not is_audible:
+                    btn.configure(fg_color="gray35", hover_color="gray25")
+                else:
+                    btn.configure(
+                        fg_color=("#1565c0", "#0d47a1"),
+                        hover_color=("#0d47a1", "#01579b"),
+                    )
 
     def _sync_timeline(self):
         if not self._mixer or not hasattr(self, "_timeline_slider"):

@@ -2,7 +2,7 @@
 AdaptiveMixer — Main audio mixing engine for ConductorSBN.
 
 Opens a sounddevice OutputStream with a callback that reads from StemPlayers,
-optionally mixes in MIDI leitmotifs, applies effects, and outputs to hardware.
+applies effects, and outputs to hardware.
 """
 
 import numpy as np
@@ -13,10 +13,6 @@ from pathlib import Path
 from typing import Optional
 
 from .stem_player import StemPlayer
-from .midi_generator import (
-    MidiGenerator, PrerenderedMidiGenerator,
-    FLUIDSYNTH_AVAILABLE, FLUIDSYNTH_EXE,
-)
 from .beat_clock import BeatClock
 
 try:
@@ -32,12 +28,7 @@ class AdaptiveMixer:
     BLOCK_SIZE = 1024  # ~23ms latency @ 44100 Hz
     DEFAULT_FADE_SECONDS = 2.0
 
-    def __init__(
-        self,
-        sample_rate: int = 44100,
-        soundfont_path: str = "assets/soundfonts/FluidR3_GM.sf2",
-        leitmotif_config_path: str = "assets/leitmotifs/leitmotifs.json",
-    ):
+    def __init__(self, sample_rate: int = 44100):
         self.SAMPLE_RATE = sample_rate
         self._lock = threading.Lock()
         self._stream: Optional[sd.OutputStream] = None
@@ -49,37 +40,10 @@ class AdaptiveMixer:
         self._layer_groups: dict = {}
         self._scene_config: Optional[dict] = None
 
-        # MIDI generator (optional — requires FluidSynth)
-        self._midi_gen: Optional[MidiGenerator] = None
-        sf_path = Path(soundfont_path)
-        if sf_path.exists() and FLUIDSYNTH_AVAILABLE:
-            try:
-                self._midi_gen = MidiGenerator(str(sf_path), sample_rate=sample_rate)
-                print("[AdaptiveMixer] MIDI generator initialized (direct).")
-            except Exception as e:
-                print(f"[AdaptiveMixer] Direct FluidSynth failed: {e}")
-        # Fallback: subprocess-based pre-rendering via fluidsynth.exe
-        if self._midi_gen is None and sf_path.exists() and FLUIDSYNTH_EXE:
-            try:
-                self._midi_gen = PrerenderedMidiGenerator(
-                    str(sf_path), sample_rate=sample_rate
-                )
-                print("[AdaptiveMixer] MIDI generator initialized (subprocess).")
-            except Exception as e:
-                print(f"[AdaptiveMixer] Subprocess FluidSynth failed: {e}")
-        if self._midi_gen is None:
-            if not sf_path.exists():
-                print(f"[AdaptiveMixer] SoundFont not found at {soundfont_path}. Leitmotifs disabled.")
-            else:
-                print("[AdaptiveMixer] No FluidSynth backend available. Leitmotifs disabled.")
-
-        # Load leitmotifs
-        lm_path = Path(leitmotif_config_path)
-        if lm_path.exists() and self._midi_gen:
-            with open(lm_path, "r") as f:
-                lm_config = json.load(f)
-            self._midi_gen.load_leitmotifs_from_config(lm_config)
-            print(f"[AdaptiveMixer] Loaded {len(lm_config.get('leitmotifs', {}))} leitmotifs.")
+        # Extra stems: loaded from other scenes, not affected by intensity
+        # key = "scene_id::stem_id", value = StemPlayer
+        self._extra_stems: dict = {}
+        self._extra_stem_info: dict = {}  # key -> {"scene_name": str, "stem_id": str, "scene_dir": str}
 
         self._master_volume: float = 0.8
 
@@ -182,12 +146,97 @@ class AdaptiveMixer:
             for stem in self._stems.values():
                 stem.reset_cursor()
 
+            # Reset extra stem cursors so they restart with the new scene
+            for stem in self._extra_stems.values():
+                stem.reset_cursor()
+
         print(f"[AdaptiveMixer] Loaded scene: {config.get('name', scene_dir)}")
 
     def get_current_scene_name(self) -> str:
         if self._scene_config:
             return self._scene_config.get("name", "Unknown")
         return "No scene loaded"
+
+    # ── Extra Stem Management ──────────────────────────────────────
+
+    def add_extra_stem(self, scene_dir: str, stem_id: str, volume: float = 0.5) -> str:
+        """
+        Add a stem from any scene directory as an extra overlay track.
+        Returns the key used to reference this extra stem.
+        Extra stems are not affected by set_intensity() — volume is static.
+        """
+        scene_path = Path(scene_dir)
+        config_path = scene_path / "scene.json"
+        if not config_path.exists():
+            raise FileNotFoundError(f"No scene.json in {scene_dir}")
+
+        with open(config_path, "r") as f:
+            config = json.load(f)
+
+        stem_config = config.get("stems", {}).get(stem_id)
+        if not stem_config:
+            raise KeyError(f"Stem '{stem_id}' not found in {scene_dir}")
+
+        file_path = scene_path / stem_config["file"]
+        if not file_path.exists():
+            raise FileNotFoundError(f"Stem file not found: {file_path}")
+
+        scene_name = config.get("name", scene_path.name)
+        key = f"{scene_path.name}::{stem_id}"
+
+        stem = StemPlayer(str(file_path), sample_rate=self.SAMPLE_RATE, channels=self.CHANNELS)
+        stem.loop = True
+        stem.unmute(volume=volume, fade_seconds=0.5)
+
+        with self._lock:
+            # Remove old version if re-adding
+            if key in self._extra_stems:
+                old = self._extra_stems[key]
+                old.mute(fade_seconds=0.0)
+            self._extra_stems[key] = stem
+            self._extra_stem_info[key] = {
+                "scene_name": scene_name,
+                "stem_id": stem_id,
+                "scene_dir": scene_dir,
+            }
+
+        print(f"[AdaptiveMixer] Extra stem added: {key}")
+        return key
+
+    def remove_extra_stem(self, key: str):
+        """Remove an extra stem by key."""
+        with self._lock:
+            if key in self._extra_stems:
+                self._extra_stems[key].mute(fade_seconds=0.5)
+                del self._extra_stems[key]
+                self._extra_stem_info.pop(key, None)
+                print(f"[AdaptiveMixer] Extra stem removed: {key}")
+
+    def set_extra_stem_volume(self, key: str, volume: float, fade_seconds: float = 0.05):
+        """Set volume for an extra stem (static — only changed by direct call)."""
+        with self._lock:
+            if key in self._extra_stems:
+                stem = self._extra_stems[key]
+                if volume > 0:
+                    stem.unmute(volume, fade_seconds)
+                else:
+                    stem.mute(fade_seconds)
+
+    def get_extra_stem_keys(self) -> list:
+        return list(self._extra_stems.keys())
+
+    def get_extra_stem_status(self) -> dict:
+        """Return volume/mute status for all extra stems."""
+        status = {}
+        for key, stem in self._extra_stems.items():
+            status[key] = {
+                "volume": stem.current_volume,
+                "target_volume": stem._target_volume,
+                "is_audible": stem.is_audible,
+                "muted": stem._muted,
+                "info": self._extra_stem_info.get(key, {}),
+            }
+        return status
 
     # ── Playback Control ───────────────────────────────────────────
 
@@ -243,9 +292,8 @@ class AdaptiveMixer:
 
                     mix += chunk
 
-            if self._midi_gen:
-                midi_chunk = self._midi_gen.render_chunk(frames)
-                mix += midi_chunk
+                for stem in self._extra_stems.values():
+                    mix += stem.read_chunk(frames)
 
             mix *= self._master_volume
 
@@ -312,6 +360,7 @@ class AdaptiveMixer:
         """
         Set overall intensity level.
         level 0 = base only, 1 = + peaceful, 2 = + tension, 3 = + combat
+        Extra stems are NOT affected by intensity changes.
         """
         for layer_name, group in self._layer_groups.items():
             group_intensity = group.get("intensity", 0)
@@ -326,18 +375,6 @@ class AdaptiveMixer:
                     else:
                         self._stems[stem_id].mute(fade_seconds)
 
-    # ── Leitmotif Control ─────────────────────────────────────────
-
-    def trigger_leitmotif(self, leitmotif_id: str):
-        """Trigger a leitmotif to play over the current mix."""
-        if self._midi_gen:
-            self._midi_gen.trigger_leitmotif(leitmotif_id, self.clock.bpm)
-
-    def stop_leitmotif(self):
-        """Stop any playing leitmotif."""
-        if self._midi_gen:
-            self._midi_gen.stop_leitmotif()
-
     # ── Master Controls ────────────────────────────────────────────
 
     def set_master_volume(self, volume: float):
@@ -348,8 +385,8 @@ class AdaptiveMixer:
         with self._lock:
             for stem in self._stems.values():
                 stem.mute(fade_seconds)
-        if self._midi_gen:
-            self._midi_gen.stop_leitmotif()
+            for stem in self._extra_stems.values():
+                stem.mute(fade_seconds)
 
     # ── Quantized Action Processing ────────────────────────────────
 
@@ -398,15 +435,8 @@ class AdaptiveMixer:
     def get_stem_names(self) -> list:
         return list(self._stems.keys())
 
-    def get_leitmotif_names(self) -> list:
-        if self._midi_gen:
-            return list(self._midi_gen._leitmotifs.keys())
-        return []
-
     # ── Cleanup ────────────────────────────────────────────────────
 
     def cleanup(self):
         """Release all resources."""
         self.stop()
-        if self._midi_gen:
-            self._midi_gen.cleanup()
