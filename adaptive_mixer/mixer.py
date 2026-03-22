@@ -13,7 +13,10 @@ from pathlib import Path
 from typing import Optional
 
 from .stem_player import StemPlayer
-from .midi_generator import MidiGenerator, FLUIDSYNTH_AVAILABLE
+from .midi_generator import (
+    MidiGenerator, PrerenderedMidiGenerator,
+    FLUIDSYNTH_AVAILABLE, FLUIDSYNTH_EXE,
+)
 from .beat_clock import BeatClock
 
 try:
@@ -52,13 +55,23 @@ class AdaptiveMixer:
         if sf_path.exists() and FLUIDSYNTH_AVAILABLE:
             try:
                 self._midi_gen = MidiGenerator(str(sf_path), sample_rate=sample_rate)
-                print("[AdaptiveMixer] MIDI generator initialized.")
+                print("[AdaptiveMixer] MIDI generator initialized (direct).")
             except Exception as e:
-                print(f"[AdaptiveMixer] MIDI generator init failed: {e}")
-        elif not sf_path.exists():
-            print(f"[AdaptiveMixer] SoundFont not found at {soundfont_path}. Leitmotifs disabled.")
-        elif not FLUIDSYNTH_AVAILABLE:
-            print("[AdaptiveMixer] pyfluidsynth not installed. Leitmotifs disabled.")
+                print(f"[AdaptiveMixer] Direct FluidSynth failed: {e}")
+        # Fallback: subprocess-based pre-rendering via fluidsynth.exe
+        if self._midi_gen is None and sf_path.exists() and FLUIDSYNTH_EXE:
+            try:
+                self._midi_gen = PrerenderedMidiGenerator(
+                    str(sf_path), sample_rate=sample_rate
+                )
+                print("[AdaptiveMixer] MIDI generator initialized (subprocess).")
+            except Exception as e:
+                print(f"[AdaptiveMixer] Subprocess FluidSynth failed: {e}")
+        if self._midi_gen is None:
+            if not sf_path.exists():
+                print(f"[AdaptiveMixer] SoundFont not found at {soundfont_path}. Leitmotifs disabled.")
+            else:
+                print("[AdaptiveMixer] No FluidSynth backend available. Leitmotifs disabled.")
 
         # Load leitmotifs
         lm_path = Path(leitmotif_config_path)

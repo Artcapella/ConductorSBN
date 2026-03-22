@@ -307,7 +307,7 @@ class AdaptiveMixerView(ctk.CTkFrame):
         ).grid(row=0, column=0, padx=(14, 8), pady=10)
 
         self._leitmotif_btn_frame = ctk.CTkFrame(bar, fg_color="transparent")
-        self._leitmotif_btn_frame.grid(row=0, column=1, sticky="w", pady=10)
+        self._leitmotif_btn_frame.grid(row=0, column=1, sticky="ew", pady=10)
 
         ctk.CTkButton(
             bar, text="Stop", width=60, height=28,
@@ -498,22 +498,25 @@ class AdaptiveMixerView(ctk.CTkFrame):
                 self._leitmotif_btn_frame,
                 text="None loaded — add FluidR3_GM.sf2 and install pyfluidsynth",
                 font=ctk.CTkFont(size=10), text_color="gray50",
-            ).pack(side="left")
+            ).grid(row=0, column=0)
             return
 
-        for lm_id in leitmotifs:
+        cols_per_row = 6
+        for idx, lm_id in enumerate(leitmotifs):
             lm_name = lm_id.replace("_", " ").title()
             if self._mixer._midi_gen:
                 lm_obj = self._mixer._midi_gen._leitmotifs.get(lm_id)
                 if lm_obj:
                     lm_name = lm_obj.name
 
+            row = idx // cols_per_row
+            col = idx % cols_per_row
             ctk.CTkButton(
                 self._leitmotif_btn_frame,
                 text=lm_name,
                 height=28, width=max(80, len(lm_name) * 8),
                 command=lambda lid=lm_id: self._mixer.trigger_leitmotif(lid),
-            ).pack(side="left", padx=3)
+            ).grid(row=row, column=col, padx=3, pady=2)
 
     # ── User actions ──────────────────────────────────────────────
 
