@@ -18,6 +18,28 @@ import yaml
 from pygame import mixer
 
 
+MUSIC_VOICE_COMMANDS = {
+    "play music": "resume",
+    "stop music": "stop",
+    "pause music": "pause",
+    "next track": "next",
+    "previous track": "previous",
+    "fade in": "fade_in",
+    "fade out": "fade_out",
+}
+
+EFFECT_VOICE_COMMANDS = {
+    "tunnel voice": "TUNNEL",
+    "cathedral voice": "CATHEDRAL",
+    "choir voice": "CHOIR",
+    "demon voice": "DEMON",
+    "whisper voice": "WHISPER",
+    "underwater voice": "UNDERWATER",
+    "normal voice": "NONE",
+    "no effect": "NONE",
+}
+
+
 class SoundboardView(ctk.CTkFrame):
     """Soundboard with key bindings and optional live keyword detection."""
 
@@ -25,14 +47,18 @@ class SoundboardView(ctk.CTkFrame):
     FLASH_MS = 400                    # highlight duration (ms)
     SB_PATH = "config/soundboard_config.yaml"
 
-    def __init__(self, parent, config_path: str):
+    def __init__(self, parent, config_path: str,
+                 music_controller=None, music_bindings=None):
         super().__init__(parent, fg_color="transparent")
         self.config_path = config_path
+        self.music_controller = music_controller
+        self.music_bindings = music_bindings
         self.active = False
         self.listening = False
         self._listen_thread: Thread | None = None
         self._cards: dict[str, ctk.CTkFrame] = {}
         self._bindings: dict[str, dict] = {}
+        self._sound_cache: dict[str, mixer.Sound] = {}
         self._load_configs()
         self._build_ui()
 
@@ -145,13 +171,15 @@ class SoundboardView(ctk.CTkFrame):
         return card
 
     # ── Sound playback ────────────────────────────────────────────────
-    @staticmethod
-    def _play(bind: dict):
+    def _play(self, bind: dict):
         fp = os.path.join("sounds", bind["file"])
-        if os.path.exists(fp):
-            snd = mixer.Sound(fp)
-            snd.set_volume(bind.get("volume", 0.5))
-            Thread(target=snd.play, daemon=True).start()
+        if not os.path.exists(fp):
+            return
+        if fp not in self._sound_cache:
+            self._sound_cache[fp] = mixer.Sound(fp)
+        snd = self._sound_cache[fp]
+        snd.set_volume(bind.get("volume", 0.5))
+        snd.play()
 
     def _remove(self, key: str):
         self._bindings.pop(key, None)
@@ -173,18 +201,15 @@ class SoundboardView(ctk.CTkFrame):
     # ── Keyboard handling ─────────────────────────────────────────────
     def activate(self):
         """Called when this view becomes visible."""
+        if self.active:
+            return
         self._load_configs()
         self._refresh_grid()
         self.active = True
-        self.winfo_toplevel().bind("<KeyPress>", self._on_key, add="+")
 
     def deactivate(self):
         """Called when leaving this view."""
         self.active = False
-        try:
-            self.winfo_toplevel().unbind("<KeyPress>")
-        except Exception:
-            pass
         if self.listening:
             self._stop_listen()
 
@@ -195,6 +220,23 @@ class SoundboardView(ctk.CTkFrame):
         if event.widget.winfo_toplevel() != self.winfo_toplevel():
             return
         key = event.keysym.lower()
+
+        # Number keys → music tracks
+        if key.isdigit() and self.music_controller and self.music_bindings:
+            track_idx = self.music_bindings.get_track_for_key(key)
+            if track_idx is not None:
+                from core.music_controller import PlaybackState
+                library = self.music_controller.library
+                if 0 <= track_idx < len(library):
+                    state = self.music_controller.get_state()
+                    current = self.music_controller.get_current_track()
+                    if (state == PlaybackState.PLAYING and current
+                            and current.source == library[track_idx].source):
+                        self.music_controller.pause()
+                    else:
+                        self.music_controller.play_by_index(track_idx)
+            return
+
         if key in self._bindings:
             self._play(self._bindings[key])
             self._flash(key)
@@ -299,13 +341,32 @@ class SoundboardView(ctk.CTkFrame):
 
     def _match_triggers(self, text: str, played: set, *, partial: bool):
         text_l = text.lower()
+
+        # Music voice commands (final results only, checked first)
+        if not partial:
+            for phrase, action in MUSIC_VOICE_COMMANDS.items():
+                if phrase in text_l:
+                    app = self.winfo_toplevel()
+                    if hasattr(app, "handle_music_voice_command"):
+                        self.after(0, lambda a=action: app.handle_music_voice_command(a))
+                    return
+
+            for phrase, preset in EFFECT_VOICE_COMMANDS.items():
+                if phrase in text_l:
+                    app = self.winfo_toplevel()
+                    if hasattr(app, "handle_effect_voice_command"):
+                        self.after(0, lambda p=preset: app.handle_effect_voice_command(p))
+                    return
+
         for trigger, params in self.triggers.items():
             if trigger in text_l and trigger not in played:
                 fp = os.path.join("sounds", params["file"])
                 if os.path.exists(fp):
-                    snd = mixer.Sound(fp)
+                    if fp not in self._sound_cache:
+                        self._sound_cache[fp] = mixer.Sound(fp)
+                    snd = self._sound_cache[fp]
                     snd.set_volume(params["volume"])
-                    Thread(target=snd.play, daemon=True).start()
+                    snd.play()
                     played.add(trigger)
 
                     # Highlight matching soundboard cards (green flash)

@@ -1,0 +1,5 @@
+# ConductorSBN — Music Key Bindings
+# Maps number keys (0-9) to track indices in the loaded library.
+# Indices are 0-based. Edit via the Music tab in the GUI.
+
+key_bindings: {}

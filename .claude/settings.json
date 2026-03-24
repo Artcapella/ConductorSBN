@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python.exe -c \"import soundfile, numpy; print\\(''soundfile OK''\\)\")",
+      "Bash(.venv/Scripts/pip.exe install:*)",
+      "Bash(.venv/Scripts/python.exe tools/prepare_stems.py create-test --output assets/music/scenes/test_scene/)",
+      "Bash(.venv/Scripts/python.exe tools/prepare_stems.py verify assets/music/scenes/test_scene/)",
+      "Bash(.venv/Scripts/python.exe -c \":*)",
+      "Bash(for f:*)",
+      "Bash(do .venv/Scripts/python.exe -c \"import ast; ast.parse\\(open\\(''$f''\\).read\\(\\)\\); print\\(''$f OK''\\)\")",
+      "Bash(done)"
+    ]
+  }
+}

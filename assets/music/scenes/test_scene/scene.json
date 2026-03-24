@@ -1,0 +1,73 @@
+{
+  "name": "Test Scene",
+  "bpm": 120.0,
+  "key": "Am",
+  "time_signature": [
+    4,
+    4
+  ],
+  "stems": {
+    "base_pad": {
+      "file": "base_pad.wav",
+      "layer": "base",
+      "default_volume": 0.5,
+      "always_on": true,
+      "description": "Low drone foundation"
+    },
+    "peaceful_melody": {
+      "file": "peaceful_melody.wav",
+      "layer": "peaceful",
+      "default_volume": 0.4,
+      "always_on": false,
+      "description": "Tremolo melody"
+    },
+    "tension_strings": {
+      "file": "tension_strings.wav",
+      "layer": "tension",
+      "default_volume": 0.45,
+      "always_on": false,
+      "description": "Dissonant strings"
+    },
+    "combat_percussion": {
+      "file": "combat_percussion.wav",
+      "layer": "combat",
+      "default_volume": 0.6,
+      "always_on": false,
+      "description": "Rhythmic pulse"
+    },
+    "combat_brass": {
+      "file": "combat_brass.wav",
+      "layer": "combat",
+      "default_volume": 0.5,
+      "always_on": false,
+      "description": "Brass stabs"
+    }
+  },
+  "layer_groups": {
+    "base": {
+      "stems": [
+        "base_pad"
+      ],
+      "intensity": 0
+    },
+    "peaceful": {
+      "stems": [
+        "peaceful_melody"
+      ],
+      "intensity": 1
+    },
+    "tension": {
+      "stems": [
+        "tension_strings"
+      ],
+      "intensity": 2
+    },
+    "combat": {
+      "stems": [
+        "combat_percussion",
+        "combat_brass"
+      ],
+      "intensity": 3
+    }
+  }
+}

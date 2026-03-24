@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(md|txt|json|yml|yaml|py\\)$|^d\")",
+      "Bash(git -C /c/Users/cayde/Desktop/ConductorSBN log --oneline -10)",
+      "Bash(pip install:*)",
+      "Bash(python -c \":*)",
+      "Bash(\"c:\\\\Users\\\\cayde\\\\Desktop\\\\ConductorSBN\\\\core\\\\gesture_detector.py\")"
+    ]
+  }
+}

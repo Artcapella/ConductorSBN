@@ -1,11 +1,24 @@
 # Python dependencies for ConductorSBN
-pygame
-vosk
-sounddevice
-PyYAML
-numpy
-SpeechRecognition
-customtkinter
+pygame>=2.1.0
+vosk>=0.3.45
+sounddevice>=0.4.6
+PyYAML>=6.0
+numpy>=1.24.0
+SpeechRecognition>=3.10.0
+customtkinter>=5.2.0
+darkdetect>=0.8.0
+
+# Feature: Gesture Detection
+mediapipe>=0.10.30  # Uses Tasks API (HandLandmarker) — no longer requires mp.solutions
+opencv-python>=4.8.0
+Pillow>=9.0.0
+
+# Feature: Voice Effects
+pedalboard>=0.9.0
+scipy>=1.10.0
+
+# Feature: Spotify (optional — only needed for Spotify integration)
+# spotipy>=2.23.0
 
 # Optional (recommended on Windows for microphone support)
 # pyaudio

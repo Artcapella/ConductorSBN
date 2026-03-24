@@ -1,0 +1,11 @@
+motif_stems:
+- scene_dir: C:\Users\cayde\Desktop\ConductorSBN\assets\music\scenes\Taylor Swift
+    - I Forgot That You Existed _Instrumental_
+  scene_id: Taylor Swift - I Forgot That You Existed _Instrumental_
+  scene_name: 'Taylor Swift - I Forgot That You Existed  Instrumental '
+  stem_id: piano
+- scene_dir: C:\Users\cayde\Desktop\ConductorSBN\assets\music\scenes\Taylor Swift
+    - I Forgot That You Existed _Instrumental_
+  scene_id: Taylor Swift - I Forgot That You Existed _Instrumental_
+  scene_name: 'Taylor Swift - I Forgot That You Existed  Instrumental '
+  stem_id: other

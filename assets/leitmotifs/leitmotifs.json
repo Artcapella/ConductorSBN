@@ -1,0 +1,344 @@
+{
+    "leitmotifs": {
+        "aria_theme": {
+            "name": "Aria's Theme",
+            "description": "Elven ranger — ethereal and flowing",
+            "instrument": 73,
+            "channel": 5,
+            "notes": [
+                {"pitch": 74, "velocity": 80, "start_beat": 0.0, "duration_beats": 1.0},
+                {"pitch": 76, "velocity": 85, "start_beat": 1.0, "duration_beats": 0.5},
+                {"pitch": 78, "velocity": 90, "start_beat": 1.5, "duration_beats": 1.5},
+                {"pitch": 76, "velocity": 75, "start_beat": 3.0, "duration_beats": 0.5},
+                {"pitch": 74, "velocity": 70, "start_beat": 3.5, "duration_beats": 0.5}
+            ],
+            "total_beats": 4,
+            "loop": false,
+            "transpose_to_scene_key": true
+        },
+        "grimjaw_theme": {
+            "name": "Grimjaw's Theme",
+            "description": "Orc warlord — heavy and ominous",
+            "instrument": 58,
+            "channel": 6,
+            "notes": [
+                {"pitch": 36, "velocity": 110, "start_beat": 0.0, "duration_beats": 2.0},
+                {"pitch": 38, "velocity": 100, "start_beat": 2.0, "duration_beats": 1.0},
+                {"pitch": 36, "velocity": 105, "start_beat": 3.0, "duration_beats": 1.0}
+            ],
+            "total_beats": 4,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "mystery_motif": {
+            "name": "Mystery Motif",
+            "description": "Generic suspense sting",
+            "instrument": 48,
+            "channel": 7,
+            "notes": [
+                {"pitch": 60, "velocity": 60, "start_beat": 0.0, "duration_beats": 0.25},
+                {"pitch": 63, "velocity": 65, "start_beat": 0.5, "duration_beats": 0.25},
+                {"pitch": 66, "velocity": 70, "start_beat": 1.0, "duration_beats": 0.25},
+                {"pitch": 69, "velocity": 80, "start_beat": 1.5, "duration_beats": 2.5}
+            ],
+            "total_beats": 4,
+            "loop": false,
+            "transpose_to_scene_key": true
+        },
+        "triplet_to_fsharp": {
+            "name": "Triplet to F# Reduction",
+            "description": "Single-line reduction — prominent attacks and upper contour from piano/vocal excerpt",
+            "instrument": 48,
+            "channel": 0,
+            "notes": [
+                {"pitch": 54, "velocity": 88, "start_beat": 0.0, "duration_beats": 0.45},
+                {"pitch": 54, "velocity": 78, "start_beat": 0.5, "duration_beats": 0.28},
+                {"pitch": 54, "velocity": 78, "start_beat": 0.83, "duration_beats": 0.28},
+                {"pitch": 54, "velocity": 78, "start_beat": 1.17, "duration_beats": 0.28},
+                {"pitch": 54, "velocity": 82, "start_beat": 1.5, "duration_beats": 0.45},
+                {"pitch": 54, "velocity": 82, "start_beat": 2.0, "duration_beats": 0.45},
+                {"pitch": 69, "velocity": 84, "start_beat": 2.5, "duration_beats": 0.45},
+                {"pitch": 73, "velocity": 86, "start_beat": 3.0, "duration_beats": 0.45},
+                {"pitch": 71, "velocity": 84, "start_beat": 3.5, "duration_beats": 0.45},
+                {"pitch": 70, "velocity": 82, "start_beat": 4.0, "duration_beats": 0.45}
+            ],
+            "total_beats": 4.5,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "not_throwing_away_my_shot": {
+            "name": "Not Throwing Away My Shot",
+            "description": "X-notehead vocal/percussion rhythm — single proxy pitch",
+            "instrument": 56,
+            "channel": 1,
+            "notes": [
+                {"pitch": 71, "velocity": 76, "start_beat": 0.0, "duration_beats": 0.45},
+                {"pitch": 71, "velocity": 74, "start_beat": 1.0, "duration_beats": 0.22},
+                {"pitch": 71, "velocity": 74, "start_beat": 1.33, "duration_beats": 0.22},
+                {"pitch": 71, "velocity": 74, "start_beat": 1.67, "duration_beats": 0.22},
+                {"pitch": 71, "velocity": 78, "start_beat": 2.5, "duration_beats": 0.45},
+                {"pitch": 71, "velocity": 82, "start_beat": 4.0, "duration_beats": 0.35}
+            ],
+            "total_beats": 4.5,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "snap_crescendo": {
+            "name": "Snap Crescendo",
+            "description": "Pitched cue plus snap figure — short proxy gesture",
+            "instrument": 80,
+            "channel": 2,
+            "notes": [
+                {"pitch": 76, "velocity": 60, "start_beat": 2.5, "duration_beats": 0.2},
+                {"pitch": 79, "velocity": 68, "start_beat": 3.0, "duration_beats": 0.2},
+                {"pitch": 78, "velocity": 76, "start_beat": 3.33, "duration_beats": 0.4},
+                {"pitch": 76, "velocity": 84, "start_beat": 3.83, "duration_beats": 0.45}
+            ],
+            "total_beats": 4.5,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "burr_door_sfx": {
+            "name": "Burr Door SFX",
+            "description": "Spoken/SFX cue reduced to a playable melodic skeleton",
+            "instrument": 45,
+            "channel": 3,
+            "notes": [
+                {"pitch": 83, "velocity": 58, "start_beat": 0.0, "duration_beats": 0.1},
+                {"pitch": 64, "velocity": 72, "start_beat": 2.0, "duration_beats": 0.2},
+                {"pitch": 81, "velocity": 78, "start_beat": 2.33, "duration_beats": 0.2},
+                {"pitch": 79, "velocity": 80, "start_beat": 3.0, "duration_beats": 0.45},
+                {"pitch": 76, "velocity": 84, "start_beat": 3.5, "duration_beats": 0.45}
+            ],
+            "total_beats": 4.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "descending_eighth_figure": {
+            "name": "Descending Eighth Figure",
+            "description": "Single visible treble line — alternating descending pattern",
+            "instrument": 73,
+            "channel": 4,
+            "notes": [
+                {"pitch": 64, "velocity": 72, "start_beat": 0.0, "duration_beats": 0.42},
+                {"pitch": 62, "velocity": 72, "start_beat": 0.5, "duration_beats": 0.42},
+                {"pitch": 64, "velocity": 74, "start_beat": 1.0, "duration_beats": 0.42},
+                {"pitch": 62, "velocity": 74, "start_beat": 1.5, "duration_beats": 0.42},
+                {"pitch": 64, "velocity": 76, "start_beat": 2.0, "duration_beats": 0.42},
+                {"pitch": 62, "velocity": 76, "start_beat": 2.5, "duration_beats": 0.42},
+                {"pitch": 61, "velocity": 80, "start_beat": 3.0, "duration_beats": 0.75}
+            ],
+            "total_beats": 4.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "you_you_you_fragment": {
+            "name": "You You You Fragment",
+            "description": "Short vocal fragment simplified to a single line",
+            "instrument": 52,
+            "channel": 8,
+            "notes": [
+                {"pitch": 62, "velocity": 72, "start_beat": 0.0, "duration_beats": 0.45},
+                {"pitch": 65, "velocity": 78, "start_beat": 0.75, "duration_beats": 0.45},
+                {"pitch": 65, "velocity": 80, "start_beat": 1.5, "duration_beats": 0.45},
+                {"pitch": 64, "velocity": 82, "start_beat": 2.75, "duration_beats": 0.45},
+                {"pitch": 62, "velocity": 76, "start_beat": 3.5, "duration_beats": 0.7}
+            ],
+            "total_beats": 4.5,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "comping_roots": {
+            "name": "Comping Roots Reduction",
+            "description": "Rhythmic accompaniment — chord-root line from C, Am, Em",
+            "instrument": 24,
+            "channel": 10,
+            "notes": [
+                {"pitch": 60, "velocity": 86, "start_beat": 0.0, "duration_beats": 0.72},
+                {"pitch": 57, "velocity": 82, "start_beat": 1.0, "duration_beats": 0.72},
+                {"pitch": 52, "velocity": 84, "start_beat": 2.0, "duration_beats": 0.72},
+                {"pitch": 52, "velocity": 76, "start_beat": 3.0, "duration_beats": 0.42},
+                {"pitch": 59, "velocity": 78, "start_beat": 3.5, "duration_beats": 0.42}
+            ],
+            "total_beats": 4.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "flat_key_sustained_phrase": {
+            "name": "Flat Key Sustained Phrase",
+            "description": "Melody-only reduction over Db, Bbm/Db, Fm/C",
+            "instrument": 42,
+            "channel": 11,
+            "notes": [
+                {"pitch": 61, "velocity": 74, "start_beat": 0.0, "duration_beats": 0.95},
+                {"pitch": 68, "velocity": 80, "start_beat": 1.5, "duration_beats": 0.72},
+                {"pitch": 65, "velocity": 72, "start_beat": 3.0, "duration_beats": 0.82},
+                {"pitch": 61, "velocity": 74, "start_beat": 4.0, "duration_beats": 0.95},
+                {"pitch": 70, "velocity": 80, "start_beat": 5.5, "duration_beats": 0.72},
+                {"pitch": 65, "velocity": 72, "start_beat": 7.0, "duration_beats": 0.82},
+                {"pitch": 60, "velocity": 76, "start_beat": 8.0, "duration_beats": 2.0},
+                {"pitch": 68, "velocity": 80, "start_beat": 9.5, "duration_beats": 0.72},
+                {"pitch": 65, "velocity": 74, "start_beat": 11.0, "duration_beats": 0.92},
+                {"pitch": 65, "velocity": 70, "start_beat": 12.0, "duration_beats": 3.8}
+            ],
+            "total_beats": 16.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "dm_c_f_over_a_phrase": {
+            "name": "Dm-C-F/A Phrase",
+            "description": "Top-staff melody only — lyrical 16-beat phrase",
+            "instrument": 68,
+            "channel": 12,
+            "notes": [
+                {"pitch": 74, "velocity": 72, "start_beat": 0.0, "duration_beats": 1.2},
+                {"pitch": 79, "velocity": 78, "start_beat": 1.5, "duration_beats": 0.65},
+                {"pitch": 77, "velocity": 76, "start_beat": 2.0, "duration_beats": 1.0},
+                {"pitch": 74, "velocity": 72, "start_beat": 3.0, "duration_beats": 0.9},
+                {"pitch": 76, "velocity": 74, "start_beat": 4.0, "duration_beats": 1.2},
+                {"pitch": 79, "velocity": 78, "start_beat": 5.5, "duration_beats": 0.65},
+                {"pitch": 77, "velocity": 76, "start_beat": 6.0, "duration_beats": 1.0},
+                {"pitch": 74, "velocity": 72, "start_beat": 7.0, "duration_beats": 0.9},
+                {"pitch": 77, "velocity": 78, "start_beat": 8.0, "duration_beats": 1.2},
+                {"pitch": 81, "velocity": 82, "start_beat": 9.5, "duration_beats": 0.65},
+                {"pitch": 79, "velocity": 80, "start_beat": 10.0, "duration_beats": 1.0},
+                {"pitch": 77, "velocity": 76, "start_beat": 11.0, "duration_beats": 0.9},
+                {"pitch": 84, "velocity": 84, "start_beat": 12.0, "duration_beats": 1.0},
+                {"pitch": 81, "velocity": 80, "start_beat": 13.5, "duration_beats": 0.6},
+                {"pitch": 81, "velocity": 78, "start_beat": 14.0, "duration_beats": 0.82},
+                {"pitch": 79, "velocity": 76, "start_beat": 15.0, "duration_beats": 1.0}
+            ],
+            "total_beats": 16.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "chord_roots_progression": {
+            "name": "Chord Roots Progression",
+            "description": "Multi-system chord-hit passage — root-note events",
+            "instrument": 60,
+            "channel": 13,
+            "notes": [
+                {"pitch": 55, "velocity": 90, "start_beat": 0.0, "duration_beats": 0.45},
+                {"pitch": 53, "velocity": 78, "start_beat": 1.5, "duration_beats": 0.35},
+                {"pitch": 58, "velocity": 86, "start_beat": 2.5, "duration_beats": 0.45},
+                {"pitch": 59, "velocity": 76, "start_beat": 4.0, "duration_beats": 0.35},
+                {"pitch": 60, "velocity": 88, "start_beat": 6.0, "duration_beats": 0.45},
+                {"pitch": 62, "velocity": 80, "start_beat": 7.5, "duration_beats": 0.35},
+                {"pitch": 63, "velocity": 92, "start_beat": 8.5, "duration_beats": 0.8}
+            ],
+            "total_beats": 10.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "whoa_adlib": {
+            "name": "Whoa Adlib Top Line",
+            "description": "Top vocal line — ignoring stacked entries and x-notehead interjections",
+            "instrument": 53,
+            "channel": 14,
+            "notes": [
+                {"pitch": 79, "velocity": 76, "start_beat": 0.0, "duration_beats": 0.45},
+                {"pitch": 74, "velocity": 70, "start_beat": 0.5, "duration_beats": 0.45},
+                {"pitch": 79, "velocity": 76, "start_beat": 1.0, "duration_beats": 0.45},
+                {"pitch": 74, "velocity": 72, "start_beat": 1.5, "duration_beats": 0.45},
+                {"pitch": 79, "velocity": 80, "start_beat": 2.0, "duration_beats": 0.9},
+                {"pitch": 77, "velocity": 76, "start_beat": 3.0, "duration_beats": 0.9},
+                {"pitch": 74, "velocity": 72, "start_beat": 4.0, "duration_beats": 0.9},
+                {"pitch": 74, "velocity": 74, "start_beat": 6.0, "duration_beats": 0.45},
+                {"pitch": 77, "velocity": 80, "start_beat": 6.5, "duration_beats": 0.9},
+                {"pitch": 79, "velocity": 84, "start_beat": 7.5, "duration_beats": 0.9},
+                {"pitch": 77, "velocity": 80, "start_beat": 8.5, "duration_beats": 0.9}
+            ],
+            "total_beats": 10.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "countoff_top_line": {
+            "name": "Countoff Top Line",
+            "description": "Upper counting line — energetic pickup figure",
+            "instrument": 55,
+            "channel": 15,
+            "notes": [
+                {"pitch": 60, "velocity": 74, "start_beat": 0.0, "duration_beats": 0.45},
+                {"pitch": 65, "velocity": 76, "start_beat": 0.5, "duration_beats": 0.45},
+                {"pitch": 64, "velocity": 78, "start_beat": 1.0, "duration_beats": 0.35},
+                {"pitch": 65, "velocity": 80, "start_beat": 1.5, "duration_beats": 0.35},
+                {"pitch": 67, "velocity": 82, "start_beat": 2.0, "duration_beats": 0.45},
+                {"pitch": 65, "velocity": 76, "start_beat": 3.0, "duration_beats": 0.9}
+            ],
+            "total_beats": 4.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "fast_one_flat_run": {
+            "name": "Fast One-Flat Run",
+            "description": "Single visible treble run — rapid descending figure",
+            "instrument": 40,
+            "channel": 0,
+            "notes": [
+                {"pitch": 74, "velocity": 74, "start_beat": 0.0, "duration_beats": 0.18},
+                {"pitch": 74, "velocity": 74, "start_beat": 0.25, "duration_beats": 0.18},
+                {"pitch": 74, "velocity": 76, "start_beat": 0.5, "duration_beats": 0.18},
+                {"pitch": 74, "velocity": 76, "start_beat": 0.75, "duration_beats": 0.18},
+                {"pitch": 70, "velocity": 74, "start_beat": 1.0, "duration_beats": 0.18},
+                {"pitch": 70, "velocity": 74, "start_beat": 1.25, "duration_beats": 0.18},
+                {"pitch": 69, "velocity": 76, "start_beat": 1.5, "duration_beats": 0.18},
+                {"pitch": 69, "velocity": 76, "start_beat": 1.75, "duration_beats": 0.18},
+                {"pitch": 67, "velocity": 78, "start_beat": 2.0, "duration_beats": 0.18},
+                {"pitch": 67, "velocity": 78, "start_beat": 2.25, "duration_beats": 0.18},
+                {"pitch": 67, "velocity": 80, "start_beat": 2.5, "duration_beats": 0.18},
+                {"pitch": 65, "velocity": 82, "start_beat": 2.75, "duration_beats": 0.28},
+                {"pitch": 64, "velocity": 80, "start_beat": 3.0, "duration_beats": 0.42},
+                {"pitch": 62, "velocity": 78, "start_beat": 3.5, "duration_beats": 0.42}
+            ],
+            "total_beats": 4.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "weighted_bass_octaves": {
+            "name": "Weighted Bass Octaves",
+            "description": "Bass-clef weighted octave strikes — heavy rhythmic pattern",
+            "instrument": 43,
+            "channel": 1,
+            "notes": [
+                {"pitch": 36, "velocity": 92, "start_beat": 0.0, "duration_beats": 0.35},
+                {"pitch": 48, "velocity": 84, "start_beat": 0.0, "duration_beats": 0.35},
+                {"pitch": 36, "velocity": 90, "start_beat": 1.0, "duration_beats": 0.35},
+                {"pitch": 48, "velocity": 82, "start_beat": 1.0, "duration_beats": 0.35},
+                {"pitch": 36, "velocity": 90, "start_beat": 2.0, "duration_beats": 0.35},
+                {"pitch": 48, "velocity": 82, "start_beat": 2.0, "duration_beats": 0.35},
+                {"pitch": 36, "velocity": 88, "start_beat": 3.0, "duration_beats": 0.35},
+                {"pitch": 48, "velocity": 80, "start_beat": 3.0, "duration_beats": 0.35}
+            ],
+            "total_beats": 4.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        },
+        "bass_vamp": {
+            "name": "Bass Vamp Reduction",
+            "description": "Bass-clef vamp — repeating C-centered ostinato following chord labels",
+            "instrument": 33,
+            "channel": 2,
+            "notes": [
+                {"pitch": 48, "velocity": 82, "start_beat": 0.0, "duration_beats": 0.45},
+                {"pitch": 48, "velocity": 78, "start_beat": 0.5, "duration_beats": 0.45},
+                {"pitch": 43, "velocity": 74, "start_beat": 1.0, "duration_beats": 0.22},
+                {"pitch": 48, "velocity": 76, "start_beat": 1.25, "duration_beats": 0.22},
+                {"pitch": 48, "velocity": 82, "start_beat": 1.75, "duration_beats": 0.45},
+                {"pitch": 48, "velocity": 78, "start_beat": 2.25, "duration_beats": 0.45},
+                {"pitch": 43, "velocity": 74, "start_beat": 2.75, "duration_beats": 0.22},
+                {"pitch": 48, "velocity": 76, "start_beat": 3.0, "duration_beats": 0.22},
+                {"pitch": 48, "velocity": 82, "start_beat": 3.5, "duration_beats": 0.45},
+                {"pitch": 48, "velocity": 78, "start_beat": 4.0, "duration_beats": 0.45},
+                {"pitch": 45, "velocity": 74, "start_beat": 4.5, "duration_beats": 0.22},
+                {"pitch": 48, "velocity": 76, "start_beat": 4.75, "duration_beats": 0.22},
+                {"pitch": 48, "velocity": 82, "start_beat": 5.25, "duration_beats": 0.45},
+                {"pitch": 48, "velocity": 78, "start_beat": 5.75, "duration_beats": 0.45},
+                {"pitch": 46, "velocity": 74, "start_beat": 6.25, "duration_beats": 0.22},
+                {"pitch": 48, "velocity": 76, "start_beat": 6.5, "duration_beats": 0.22}
+            ],
+            "total_beats": 7.0,
+            "loop": false,
+            "transpose_to_scene_key": false
+        }
+    }
+}
